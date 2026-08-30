@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
+  /* Brand palette (indigo-based) - single rebrand point for the whole UI */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-300: #a5b4fc;
+  --color-brand-400: #818cf8;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3;
+  --color-brand-900: #312e81;
+  --color-brand-950: #1e1b4b;
+}
+
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  html,
+  body {
+    /* Prevent page-level horizontal scroll from wide tables; the tables' own
+       scroll containers still scroll internally. `clip` (not `hidden`) avoids
+       creating a scroll container so position:sticky keeps working. */
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-slate-50 font-sans text-slate-900;
+  }
+}

@@ -1,0 +1,14 @@
+# Core runtime dependencies.
+Django~=5.2.0
+djangorestframework~=3.16.0
+djangorestframework-simplejwt[crypto]~=5.5.0
+django-cors-headers~=4.7.0
+django-environ~=0.12.0
+django-filter~=25.1
+drf-spectacular~=0.28.0
+psycopg[binary]~=3.2.0
+celery[redis]~=5.5.0
+redis~=5.2.0
+# Avatar image validation (content sniffing); also required by ImageField.
+# Floor follows security advisories fixed in the 12.x line (L-12 audit gate).
+Pillow~=12.3

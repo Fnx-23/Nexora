@@ -1,0 +1,13 @@
+# Development overlay (L-9): exposes the backend on the host for direct
+# debugging/tooling. The mapping is bound to loopback only, so the port is
+# never reachable from other machines even when the overlay is active.
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build -d
+#
+# Without this overlay the backend has no published port at all; nginx on
+# port 80 remains the single public entrypoint.
+services:
+  backend:
+    ports:
+      - "127.0.0.1:8000:8000"
