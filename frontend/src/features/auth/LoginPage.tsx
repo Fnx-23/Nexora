@@ -50,11 +50,11 @@ export function LoginPage() {
             Run your whole business from one place.
           </h1>
           <p className="mt-4 max-w-md text-slate-400">
-            Customers, projects, tasks, teams and reporting - built for small and
+            Customers, projects, tasks, teams and reporting — built for small and
             medium-sized companies.
           </p>
         </div>
-        <p className="text-xs text-slate-500">© 2026 Nexora</p>
+        <p className="text-xs text-slate-600">© 2026 Nexora</p>
       </div>
 
       {/* Sign-in panel */}
@@ -67,12 +67,12 @@ export function LoginPage() {
             <span className="text-lg font-semibold text-slate-900">Nexora</span>
           </div>
 
-          <h2 className="text-xl font-semibold text-slate-900">Sign in to your workspace</h2>
-          <p className="mt-1 mb-8 text-sm text-slate-500">
+          <h2 className="text-lg font-semibold text-slate-900">Sign in to your workspace</h2>
+          <p className="mt-1.5 mb-7 text-sm text-slate-500">
             Enter your work email and password.
           </p>
 
-          <form onSubmit={(event) => void handleSubmit(event)} className="space-y-5">
+          <form onSubmit={(event) => void handleSubmit(event)} className="space-y-4">
             <Input
               label="Email"
               type="email"
@@ -95,7 +95,7 @@ export function LoginPage() {
             />
 
             {error && (
-              <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
                 {error}
               </p>
             )}
@@ -105,7 +105,7 @@ export function LoginPage() {
             </Button>
           </form>
 
-          <p className="mt-8 text-center text-xs text-slate-400">
+          <p className="mt-7 text-center text-xs text-slate-400">
             Company accounts are provisioned during onboarding.
           </p>
         </div>

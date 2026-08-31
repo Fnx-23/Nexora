@@ -45,25 +45,25 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
       {...attributes}
       {...listeners}
       onClick={() => onClick(task)}
-      className={`group cursor-grab rounded-lg border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:shadow-md active:cursor-grabbing ${
-        isDragging ? "opacity-50 shadow-lg ring-2 ring-brand-500" : ""
+      className={`group cursor-grab rounded-lg border border-slate-200 bg-white p-3 shadow-sm transition-all hover:shadow-md active:cursor-grabbing ${
+        isDragging ? "opacity-50 shadow-lg ring-1 ring-brand-400" : ""
       }`}
     >
-      <div className="mb-2.5 flex items-start justify-between gap-2">
-        <h4 className="text-sm font-medium text-slate-900 line-clamp-2">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <h4 className="text-sm font-medium text-slate-900 line-clamp-2 leading-snug">
           {task.title}
         </h4>
         <StatusBadge value={task.priority} className="shrink-0" />
       </div>
 
       {task.description && (
-        <p className="mb-2.5 text-xs text-slate-500 line-clamp-2">
+        <p className="mb-2 text-xs text-slate-500 line-clamp-2 leading-relaxed">
           {task.description}
         </p>
       )}
 
       {task.project_name && (
-        <div className="mb-2.5">
+        <div className="mb-2">
           <Badge variant="brand" className="text-[10px]">
             {task.project_name}
           </Badge>
@@ -71,9 +71,9 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
       )}
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           {task.assignee_name && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               <Avatar name={task.assignee_name} size="xs" />
               <span className="text-xs text-slate-500">{task.assignee_name}</span>
             </div>

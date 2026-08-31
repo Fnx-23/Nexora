@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Select } from "@/components/ui/Select"
 import { StatusBadge } from "@/components/ui/Badge"
-import { Card, CardContent } from "@/components/ui/Card"
 import { Modal } from "@/components/ui/Modal"
 import { ErrorState } from "@/components/ui/ErrorState"
 import { EmptyState } from "@/components/ui/EmptyState"
@@ -122,10 +121,7 @@ export function CustomersPage() {
 
   const createMutation = useMutation({
     mutationFn: createCustomer,
-    onSuccess: () => {
-      invalidate()
-      closeForm()
-    },
+    onSuccess: () => { invalidate(); closeForm() },
     onError: (err: Error & { response?: { data?: Record<string, unknown> } }) => {
       handleMutationError(err)
     },
@@ -134,10 +130,7 @@ export function CustomersPage() {
   const updateMutation = useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: Partial<CreateCustomerPayload> }) =>
       updateCustomer(id, payload),
-    onSuccess: () => {
-      invalidate()
-      closeForm()
-    },
+    onSuccess: () => { invalidate(); closeForm() },
     onError: (err: Error & { response?: { data?: Record<string, unknown> } }) => {
       handleMutationError(err)
     },
@@ -145,10 +138,7 @@ export function CustomersPage() {
 
   const archiveMutation = useMutation({
     mutationFn: archiveCustomer,
-    onSuccess: () => {
-      invalidate()
-      setArchiveTarget(null)
-    },
+    onSuccess: () => { invalidate(); setArchiveTarget(null) },
   })
 
   function handleMutationError(err: Error & { response?: { data?: Record<string, unknown> } }) {
@@ -226,9 +216,7 @@ export function CustomersPage() {
       <PageHeader
         title="Customers"
         description="Manage the companies and people you do business with."
-        actions={
-          <Button onClick={openCreateForm}>Add customer</Button>
-        }
+        actions={<Button onClick={openCreateForm}>Add customer</Button>}
       />
 
       {customersQuery.isPending && <LoadingState label="Loading customers…" />}
@@ -250,7 +238,7 @@ export function CustomersPage() {
               onChange={handleSearchChange}
               className="sm:max-w-xs"
             />
-            <Select value={statusFilter} onChange={handleStatusChange} className="sm:max-w-[180px]">
+            <Select value={statusFilter} onChange={handleStatusChange} className="sm:max-w-[160px]">
               {STATUS_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
@@ -344,40 +332,35 @@ export function CustomersPage() {
               </TableContainer>
 
               {totalPages > 1 && (
-                <Card>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">
-                        Page {page} of {totalPages}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page <= 1}
-                          onClick={() => setPage((p) => p - 1)}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page >= totalPages}
-                          onClick={() => setPage((p) => p + 1)}
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3">
+                  <span className="text-sm text-slate-500">
+                    Page {page} of {totalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
               )}
             </>
           )}
         </div>
       )}
 
-      {/* Create / Edit Modal */}
       <Modal
         open={formOpen}
         onClose={closeForm}
@@ -385,9 +368,7 @@ export function CustomersPage() {
         size="lg"
         footer={
           <>
-            <Button variant="secondary" onClick={closeForm}>
-              Cancel
-            </Button>
+            <Button variant="secondary" onClick={closeForm}>Cancel</Button>
             <Button
               type="submit"
               form="customer-form"
@@ -400,7 +381,7 @@ export function CustomersPage() {
       >
         <form id="customer-form" onSubmit={handleSubmit} className="space-y-4">
           {formGlobalError && (
-            <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
               {formGlobalError}
             </div>
           )}
@@ -460,7 +441,7 @@ export function CustomersPage() {
               placeholder="Additional notes about this customer…"
               value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+              className="block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
 
@@ -477,7 +458,6 @@ export function CustomersPage() {
         </form>
       </Modal>
 
-      {/* Archive Confirmation Modal */}
       <Modal
         open={archiveTarget !== null}
         onClose={() => setArchiveTarget(null)}
@@ -501,7 +481,6 @@ export function CustomersPage() {
         <p className="text-sm text-slate-600">
           Are you sure you want to archive{" "}
           <span className="font-medium text-slate-900">{archiveTarget?.name}</span>?
-          This will mark the customer as archived and they will no longer appear in active views.
         </p>
       </Modal>
     </div>

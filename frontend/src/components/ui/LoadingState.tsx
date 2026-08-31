@@ -6,7 +6,7 @@ export function Spinner({ className }: { className?: string }) {
       role="status"
       aria-label="Loading"
       className={cn(
-        "inline-block size-5 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600",
+        "inline-block size-4 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600",
         className,
       )}
     />
@@ -20,7 +20,7 @@ export interface LoadingStateProps {
 
 export function LoadingState({ label = "Loading…", className }: LoadingStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 px-6 py-16", className)}>
+    <div className={cn("flex flex-col items-center justify-center gap-3 px-6 py-12", className)}>
       <Spinner />
       <p className="text-sm text-slate-500">{label}</p>
     </div>

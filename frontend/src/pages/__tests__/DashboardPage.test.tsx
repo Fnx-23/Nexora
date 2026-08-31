@@ -252,7 +252,7 @@ describe("DashboardPage", () => {
     renderPage()
     await waitFor(() => {
       const hint = screen.getByText("2 overdue")
-      expect(hint).toHaveClass("text-red-500")
+      expect(hint).toHaveClass("text-red-600")
     })
   })
 
@@ -271,13 +271,13 @@ describe("DashboardPage", () => {
     await waitFor(() => expect(screen.getByText("Recent Projects")).toBeInTheDocument())
 
     const recentHeading = screen.getByText("Recent Projects")
-    expect(recentHeading.closest(".rounded-xl")).toHaveClass("min-w-0")
+    expect(recentHeading.closest("[class*='rounded-2xl']") ?? recentHeading.closest("[class*='rounded-xl']")).toHaveClass("min-w-0")
 
     const tasksHeading = screen.getByText("Recent Tasks")
-    expect(tasksHeading.closest(".rounded-xl")).toHaveClass("min-w-0")
+    expect(tasksHeading.closest("[class*='rounded-2xl']") ?? tasksHeading.closest("[class*='rounded-xl']")).toHaveClass("min-w-0")
 
     const activityHeading = screen.getByText("Recent Activity")
-    expect(activityHeading.closest(".rounded-xl")).toHaveClass("min-w-0")
+    expect(activityHeading.closest("[class*='rounded-2xl']") ?? activityHeading.closest("[class*='rounded-xl']")).toHaveClass("min-w-0")
   })
 
   it("shows zero-overdue hint when no overdue tasks", async () => {

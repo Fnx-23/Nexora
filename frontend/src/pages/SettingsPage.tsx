@@ -52,16 +52,14 @@ export function SettingsPage() {
     <div>
       <PageHeader title="Settings" description="Company and account configuration." />
 
-      <div className="max-w-3xl space-y-6">
+      <div className="max-w-2xl space-y-4">
         <Card>
           <CardHeader>
             <CardTitle>Company</CardTitle>
-            <CardDescription>
-              Details of the workspace you are currently signed into.
-            </CardDescription>
+            <CardDescription>Details of the workspace you are currently signed into.</CardDescription>
           </CardHeader>
           <CardContent>
-            <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+            <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-slate-500">Name</dt>
                 <dd className="mt-0.5 font-medium text-slate-900">{activeCompany?.name ?? "—"}</dd>
@@ -84,7 +82,7 @@ export function SettingsPage() {
             <CardDescription>How you appear to the rest of your company.</CardDescription>
           </CardHeader>
           <CardContent>
-            <dl className="grid gap-x-8 gap-y-4 text-sm sm:grid-cols-2">
+            <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-slate-500">Full name</dt>
                 <dd className="mt-0.5 font-medium text-slate-900">
@@ -105,10 +103,10 @@ export function SettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Roles &amp; permissions</CardTitle>
+            <CardTitle>Roles & permissions</CardTitle>
             <CardDescription>Reference for the built-in roles.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-slate-600">
+          <CardContent className="space-y-3 text-sm text-slate-600">
             <p>
               <span className="font-medium text-slate-900">Admins</span> manage company settings,
               members and billing.
@@ -131,15 +129,15 @@ export function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 shrink-0 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden">
+              <div className="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100">
                 {user?.avatar ? (
                   <img
                     src={user.avatar}
                     alt={user.full_name}
-                    className="h-full w-full object-cover"
+                    className="size-full object-cover"
                   />
                 ) : (
-                  <span className="text-xl font-medium text-slate-500">
+                  <span className="text-lg font-medium text-slate-500">
                     {user?.first_name?.[0]}
                     {user?.last_name?.[0]}
                   </span>
@@ -162,10 +160,10 @@ export function SettingsPage() {
                   {uploading ? "Uploading…" : "Change avatar"}
                 </Button>
                 {uploadError && (
-                  <p className="mt-1 text-xs text-red-600">{uploadError}</p>
+                  <p className="mt-1.5 text-xs text-red-600">{uploadError}</p>
                 )}
                 {uploadSuccess && (
-                  <p className="mt-1 text-xs text-green-600">Avatar updated.</p>
+                  <p className="mt-1.5 text-xs text-emerald-600">Avatar updated.</p>
                 )}
               </div>
             </div>

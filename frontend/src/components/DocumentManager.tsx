@@ -45,11 +45,11 @@ function mimeToLabel(mime: string): string {
 
 function mimeColor(mime: string): string {
   if (mime.includes("pdf")) return "bg-red-50 text-red-700"
-  if (mime.includes("word") || mime.includes("document")) return "bg-blue-50 text-blue-700"
+  if (mime.includes("word") || mime.includes("document")) return "bg-brand-50 text-brand-700"
   if (mime.includes("sheet") || mime.includes("excel")) return "bg-emerald-50 text-emerald-700"
-  if (mime.includes("presentation") || mime.includes("powerpoint")) return "bg-orange-50 text-orange-700"
-  if (mime.startsWith("image/")) return "bg-purple-50 text-purple-700"
-  return "bg-slate-100 text-slate-600"
+  if (mime.includes("presentation") || mime.includes("powerpoint")) return "bg-amber-50 text-amber-700"
+  if (mime.startsWith("image/")) return "bg-violet-50 text-violet-700"
+  return "bg-surface-100 text-surface-600"
 }
 
 interface DocumentManagerProps {
@@ -141,13 +141,13 @@ export function DocumentManager({
           <CardTitle>Documents</CardTitle>
           <div className="flex items-center gap-2">
             <div className="relative">
-              <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <SearchIcon className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-surface-400" />
               <input
                 type="text"
                 placeholder="Search files…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-8 w-48 rounded-lg border border-slate-200 bg-white pl-8 pr-3 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                className="h-8 w-48 rounded-md border border-surface-200 bg-white pl-8 pr-3 text-sm placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500/20"
               />
             </div>
             <Button
@@ -180,12 +180,12 @@ export function DocumentManager({
 
         {!docsQuery.isPending && filteredDocs?.length === 0 && (
           <div className="flex flex-col items-center justify-center py-10 text-center">
-            <FileIcon className="mb-3 size-10 text-slate-300" />
-            <p className="text-sm font-medium text-slate-500">
+            <FileIcon className="mb-3 size-10 text-surface-300" />
+            <p className="text-sm font-medium text-surface-500">
               {search ? "No files match your search" : "No documents yet"}
             </p>
             {!search && (
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-surface-400">
                 Click Upload to add files to this {entityKind.toLowerCase()}.
               </p>
             )}
@@ -193,22 +193,22 @@ export function DocumentManager({
         )}
 
         {filteredDocs && filteredDocs.length > 0 && (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-surface-100">
             {filteredDocs.map((doc) => (
               <div
                 key={doc.id}
                 className="flex items-center gap-3 px-1 py-3 first:pt-0 last:pb-0"
               >
                 <span
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-lg text-[10px] font-bold ${mimeColor(doc.mime_type)}`}
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-md text-[10px] font-bold ${mimeColor(doc.mime_type)}`}
                 >
                   {mimeToLabel(doc.mime_type)}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-slate-900">
+                  <p className="truncate text-sm font-medium text-surface-900">
                     {doc.original_filename}
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-surface-400">
                     {formatBytes(doc.size)} · {doc.uploaded_by_name} ·{" "}
                     {new Date(doc.created_at).toLocaleDateString()}
                   </p>
@@ -219,7 +219,7 @@ export function DocumentManager({
                       type="button"
                       onClick={() => handleDownload(doc)}
                       title="Download"
-                      className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                      className="rounded-md p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-700"
                     >
                       <DownloadIcon className="size-4" />
                     </button>
@@ -228,7 +228,7 @@ export function DocumentManager({
                     type="button"
                     onClick={() => openRename(doc)}
                     title="Rename"
-                    className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                    className="rounded-md p-1.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-surface-700"
                   >
                     <span className="text-xs font-medium">Rename</span>
                   </button>
@@ -237,7 +237,7 @@ export function DocumentManager({
                       type="button"
                       onClick={() => setDeleteTarget(doc)}
                       title="Delete"
-                      className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                      className="rounded-md p-1.5 text-surface-400 transition-colors hover:bg-red-50 hover:text-red-600"
                     >
                       <TrashIcon className="size-4" />
                     </button>
@@ -288,7 +288,7 @@ export function DocumentManager({
               })
             }
           }}
-          className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+          className="block w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
           autoFocus
         />
       </Modal>
@@ -316,9 +316,9 @@ export function DocumentManager({
           </>
         }
       >
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-surface-600">
           Are you sure you want to permanently delete{" "}
-          <span className="font-medium text-slate-900">{deleteTarget?.original_filename}</span>?
+          <span className="font-medium text-surface-900">{deleteTarget?.original_filename}</span>?
           This action cannot be undone.
         </p>
       </Modal>

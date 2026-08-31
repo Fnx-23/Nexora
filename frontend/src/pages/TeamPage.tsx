@@ -30,7 +30,7 @@ export function TeamPage() {
     <div>
       <PageHeader
         title="Team"
-        description="Everyone with access to this company workspace."
+        description="Everyone with access to this workspace."
       />
 
       {membersQuery.isPending && <LoadingState label="Loading team members…" />}
@@ -45,10 +45,7 @@ export function TeamPage() {
 
       {membersQuery.data && (
         membersQuery.data.length === 0 ? (
-          <EmptyState
-            title="No members yet"
-            description="Invite colleagues once invitations ship - they will appear here."
-          />
+          <EmptyState title="No members yet" description="Invite colleagues once invitations ship." />
         ) : (
           <TableContainer>
             <Table>

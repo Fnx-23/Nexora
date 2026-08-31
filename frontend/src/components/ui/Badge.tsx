@@ -11,7 +11,7 @@ type BadgeVariant =
   | "info"
 
 const variantClasses: Record<BadgeVariant, string> = {
-  neutral: "bg-slate-100 text-slate-700",
+  neutral: "bg-slate-100 text-slate-600",
   brand: "bg-brand-50 text-brand-700",
   success: "bg-emerald-50 text-emerald-700",
   warning: "bg-amber-50 text-amber-700",
@@ -27,7 +27,7 @@ export function Badge({ variant = "neutral", className, ...props }: BadgeProps) 
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium whitespace-nowrap",
+        "inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
         variantClasses[variant],
         className,
       )}

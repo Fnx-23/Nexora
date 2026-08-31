@@ -62,7 +62,7 @@ export function RecentActivity({ limit = 6, showViewAll = true, className }: Rec
             ))}
           </ul>
         ) : isError ? (
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-surface-500">
             Couldn&apos;t load activity.{" "}
             <button
               type="button"
@@ -73,7 +73,7 @@ export function RecentActivity({ limit = 6, showViewAll = true, className }: Rec
             </button>
           </p>
         ) : !data || data.results.length === 0 ? (
-          <p className="text-sm text-slate-500">No activity yet.</p>
+          <p className="text-sm text-surface-500">No activity yet.</p>
         ) : (
           <ul className="space-y-4">
             {data.results.map((activity) => (

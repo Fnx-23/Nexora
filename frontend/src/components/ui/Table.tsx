@@ -33,7 +33,7 @@ export function TH({ className, ...props }: ThHTMLAttributes<HTMLTableCellElemen
   return (
     <th
       className={cn(
-        "px-5 py-3.5 text-left text-xs font-semibold tracking-wide text-slate-600 uppercase",
+        "px-5 py-3.5 text-left text-xs font-semibold text-slate-500 tracking-wide",
         className,
       )}
       {...props}

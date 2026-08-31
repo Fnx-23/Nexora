@@ -27,7 +27,7 @@ export function PlaceholderModule({ icon, title, description, capabilities }: Pl
           </Button>
         }
       />
-      <ul className="mx-auto -mt-8 mb-8 grid max-w-md list-disc space-y-1 text-left text-sm text-slate-500">
+      <ul className="mx-auto -mt-8 mb-8 grid max-w-md list-disc space-y-1 text-left text-sm text-surface-500">
         {capabilities.map((item) => (
           <li key={item}>{item}</li>
         ))}

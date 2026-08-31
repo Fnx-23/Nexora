@@ -8,8 +8,8 @@ type ModalSize = "sm" | "md" | "lg"
 
 const sizeClasses: Record<ModalSize, string> = {
   sm: "max-w-md",
-  md: "max-w-xl",
-  lg: "max-w-3xl",
+  md: "max-w-lg",
+  lg: "max-w-2xl",
 }
 
 const FOCUSABLE =
@@ -42,7 +42,6 @@ export function Modal({
     if (!open) return
 
     previouslyFocused.current = document.activeElement as HTMLElement | null
-    // Move initial focus into the dialog so screen readers announce the label.
     dialogRef.current?.focus()
 
     function onKeyDown(event: KeyboardEvent) {
@@ -79,7 +78,6 @@ export function Modal({
     return () => {
       document.removeEventListener("keydown", onKeyDown)
       document.body.style.overflow = previousOverflow
-      // Restore focus to the element that was focused before the dialog opened.
       previouslyFocused.current?.focus()
     }
   }, [open, onClose])
@@ -90,7 +88,7 @@ export function Modal({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         role="presentation"
-        className="absolute inset-0 bg-slate-900/50"
+        className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
         onClick={onClose}
       />
       <div
@@ -106,14 +104,14 @@ export function Modal({
           className,
         )}
       >
-        <div className="flex items-start justify-between px-6 pt-6 pb-3">
+        <div className="flex items-start justify-between border-b border-slate-100 px-6 py-4">
           <div>
             {title && (
-              <h2 id={titleId} className="text-lg font-semibold text-slate-900">
+              <h2 id={titleId} className="text-base font-semibold text-slate-900">
                 {title}
               </h2>
             )}
-            {description && <p className="mt-1 text-sm text-slate-500">{description}</p>}
+            {description && <p className="mt-0.5 text-sm text-slate-500">{description}</p>}
           </div>
           <button
             type="button"
@@ -121,12 +119,14 @@ export function Modal({
             aria-label="Close dialog"
             className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600"
           >
-            <XIcon className="size-5" />
+            <XIcon className="size-4" />
           </button>
         </div>
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-6 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-3 border-t border-slate-100 px-6 py-5">{footer}</div>
+          <div className="flex justify-end gap-2 border-t border-slate-100 px-6 py-4">
+            {footer}
+          </div>
         )}
       </div>
     </div>,

@@ -2,9 +2,6 @@ import { useCallback, useMemo, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 
 import { PageHeader } from "@/components/layout/PageHeader"
-import { Button } from "@/components/ui/Button"
-import { Card, CardContent } from "@/components/ui/Card"
-import { EmptyState } from "@/components/ui/EmptyState"
 import { ErrorState } from "@/components/ui/ErrorState"
 import { LoadingState } from "@/components/ui/LoadingState"
 import { Select } from "@/components/ui/Select"
@@ -106,54 +103,52 @@ export function ActivityPage() {
           </div>
 
           {data.results.length === 0 ? (
-            <EmptyState
-              title="No activity found"
-              description={
-                hasFilters
+            <div className="flex flex-col items-center justify-center rounded-lg border border-slate-200 bg-white py-16 text-center">
+              <p className="text-sm font-medium text-slate-500">
+                {hasFilters ? "No activity found" : "No activity yet"}
+              </p>
+              <p className="mt-1 max-w-sm text-sm text-slate-400">
+                {hasFilters
                   ? "Try adjusting your filters."
-                  : "Activity will appear here as your team creates and updates records."
-              }
-            />
+                  : "Activity will appear here as your team creates and updates records."}
+              </p>
+            </div>
           ) : (
             <>
-              <Card>
-                <CardContent className="pt-6">
-                  <ul className="space-y-5">
-                    {data.results.map((activity) => (
-                      <ActivityRow key={activity.id} activity={activity} />
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <div className="rounded-lg border border-slate-200 bg-white">
+                <ul className="divide-y divide-slate-100">
+                  {data.results.map((activity) => (
+                    <li key={activity.id} className="px-5 py-3.5">
+                      <ActivityRow activity={activity} />
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {totalPages > 1 && (
-                <Card>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">
-                        Page {page} of {totalPages}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page <= 1}
-                          onClick={() => setPage((p) => p - 1)}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page >= totalPages}
-                          onClick={() => setPage((p) => p + 1)}
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3">
+                  <span className="text-sm text-slate-500">
+                    Page {page} of {totalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => p - 1)}
+                      className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      Previous
+                    </button>
+                    <button
+                      type="button"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                      className="inline-flex items-center justify-center rounded-md border border-slate-200 bg-white px-3.5 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
               )}
             </>
           )}

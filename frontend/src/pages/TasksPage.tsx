@@ -81,7 +81,6 @@ export function TasksPage() {
 
   const handleStatusChange = useCallback(
     (taskId: string, newStatus: TaskStatus) => {
-      // Optimistic update
       queryClient.setQueryData(
         [...queryKeys.tasks(companyId), queryParams],
         (old: Awaited<ReturnType<typeof fetchAllTasks>> | undefined) => {
@@ -95,12 +94,10 @@ export function TasksPage() {
         },
       )
 
-      // Send API request
       statusMutation.mutate(
         { taskId, status: newStatus },
         {
           onError: () => {
-            // Rollback on error
             void queryClient.invalidateQueries({
               queryKey: queryKeys.tasks(companyId),
             })
@@ -131,9 +128,7 @@ export function TasksPage() {
       <PageHeader
         title="Tasks"
         description="Track and manage work across your projects."
-        actions={
-          <Button onClick={() => setCreateOpen(true)}>New task</Button>
-        }
+        actions={<Button onClick={() => setCreateOpen(true)}>New task</Button>}
       />
 
       {tasksQuery.isPending && <LoadingState label="Loading tasks…" />}
@@ -177,17 +172,14 @@ export function TasksPage() {
           </div>
 
           {tasks.length === 0 ? (
-            <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 py-16">
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 py-16">
               <p className="text-sm font-medium text-slate-500">
                 {debouncedSearch || priorityFilter
                   ? "No tasks match your filters."
                   : "No tasks yet. Create your first task to get started."}
               </p>
               {!debouncedSearch && !priorityFilter && (
-                <Button
-                  className="mt-4"
-                  onClick={() => setCreateOpen(true)}
-                >
+                <Button className="mt-4" onClick={() => setCreateOpen(true)}>
                   New task
                 </Button>
               )}

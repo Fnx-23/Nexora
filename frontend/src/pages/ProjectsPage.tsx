@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Select } from "@/components/ui/Select"
 import { StatusBadge } from "@/components/ui/Badge"
-import { Card, CardContent } from "@/components/ui/Card"
 import { Modal } from "@/components/ui/Modal"
 import { ErrorState } from "@/components/ui/ErrorState"
 import { EmptyState } from "@/components/ui/EmptyState"
@@ -306,7 +305,7 @@ export function ProjectsPage() {
                 <option key={o.value} value={o.value}>{o.label}</option>
               ))}
             </Select>
-            <Select value={customerFilter} onChange={handleCustomerChange} className="sm:max-w-[160px]">
+            <Select value={customerFilter} onChange={handleCustomerChange} className="sm:max-w-[180px]">
               <option value="">All customers</option>
               {customersQuery.data?.results.map((c) => (
                 <option key={c.id} value={c.id}>{c.company_name || c.name}</option>
@@ -402,40 +401,35 @@ export function ProjectsPage() {
               </TableContainer>
 
               {totalPages > 1 && (
-                <Card>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-slate-500">
-                        Page {page} of {totalPages}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page <= 1}
-                          onClick={() => setPage((p) => p - 1)}
-                        >
-                          Previous
-                        </Button>
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          disabled={page >= totalPages}
-                          onClick={() => setPage((p) => p + 1)}
-                        >
-                          Next
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-4 py-3">
+                  <span className="text-sm text-slate-500">
+                    Page {page} of {totalPages}
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={page <= 1}
+                      onClick={() => setPage((p) => p - 1)}
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={page >= totalPages}
+                      onClick={() => setPage((p) => p + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
               )}
             </>
           )}
         </div>
       )}
 
-      {/* Create / Edit Modal */}
       <Modal
         open={formOpen}
         onClose={closeForm}
@@ -456,7 +450,7 @@ export function ProjectsPage() {
       >
         <form id="project-form" onSubmit={handleSubmit} className="space-y-4">
           {formGlobalError && (
-            <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
               {formGlobalError}
             </div>
           )}
@@ -480,7 +474,7 @@ export function ProjectsPage() {
               placeholder="What is this project about?"
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+              className="block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
 
@@ -501,7 +495,6 @@ export function ProjectsPage() {
               label="Manager"
               value={form.manager ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, manager: e.target.value || null }))}
-              error={formErrors.manager}
             >
               <option value="">No manager</option>
               {membersQuery.data?.map((m) => (
@@ -517,9 +510,11 @@ export function ProjectsPage() {
               onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
               error={formErrors.status}
             >
-              {STATUS_OPTIONS.filter((o) => o.value).map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
+              <option value="PLANNING">Planning</option>
+              <option value="IN_PROGRESS">In progress</option>
+              <option value="ON_HOLD">On hold</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="ARCHIVED">Archived</option>
             </Select>
 
             <Select
@@ -528,9 +523,10 @@ export function ProjectsPage() {
               onChange={(e) => setForm((f) => ({ ...f, priority: e.target.value }))}
               error={formErrors.priority}
             >
-              {PRIORITY_OPTIONS.filter((o) => o.value).map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+              <option value="CRITICAL">Critical</option>
             </Select>
           </div>
 
@@ -540,20 +536,17 @@ export function ProjectsPage() {
               type="date"
               value={form.start_date ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value || null }))}
-              error={formErrors.start_date}
             />
             <Input
               label="Deadline"
               type="date"
               value={form.deadline ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, deadline: e.target.value || null }))}
-              error={formErrors.deadline}
             />
           </div>
         </form>
       </Modal>
 
-      {/* Archive Confirmation */}
       <Modal
         open={archiveTarget !== null}
         onClose={() => setArchiveTarget(null)}
@@ -561,7 +554,9 @@ export function ProjectsPage() {
         size="sm"
         footer={
           <>
-            <Button variant="secondary" onClick={() => setArchiveTarget(null)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setArchiveTarget(null)}>
+              Cancel
+            </Button>
             <Button
               variant="danger"
               isLoading={archiveMutation.isPending}
@@ -575,7 +570,6 @@ export function ProjectsPage() {
         <p className="text-sm text-slate-600">
           Are you sure you want to archive{" "}
           <span className="font-medium text-slate-900">{archiveTarget?.name}</span>?
-          This will set the project status to Archived.
         </p>
       </Modal>
     </div>

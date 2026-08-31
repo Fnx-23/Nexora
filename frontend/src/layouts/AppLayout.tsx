@@ -11,11 +11,11 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-[256px] lg:block">
         <Sidebar />
       </aside>
 
-      {/* Mobile sidebar drawer */}
+      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div role="presentation" className="fixed inset-0 z-40 lg:hidden">
           <div
@@ -23,12 +23,12 @@ export function AppLayout() {
             className="absolute inset-0 bg-slate-900/50"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute inset-y-0 left-0 w-64 shadow-xl">
+          <aside className="absolute inset-y-0 left-0 w-[256px] shadow-lg">
             <button
               type="button"
               aria-label="Close navigation"
               onClick={() => setSidebarOpen(false)}
-              className="absolute top-4 right-3 z-10 rounded-md p-1 text-slate-400 hover:bg-slate-100"
+              className="absolute top-3 right-3 z-10 rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
             >
               <XIcon className="size-5" />
             </button>
@@ -37,11 +37,16 @@ export function AppLayout() {
         </div>
       )}
 
-      <div className="flex min-h-screen flex-col lg:pl-64">
-        <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 md:px-8">
-          <Outlet />
-        </main>
+      {/* Main layout */}
+      <div className="flex min-h-screen lg:pl-[256px]">
+        <div className="flex flex-1 flex-col">
+          <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
+          <main className="flex-1 bg-slate-50 px-5 py-7 md:px-8 md:py-8 xl:px-10">
+      <div className="mx-auto w-full">
+              <Outlet />
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   )

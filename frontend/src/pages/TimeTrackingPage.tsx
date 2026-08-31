@@ -260,41 +260,40 @@ export function TimeTrackingPage() {
       )}
 
       {entriesQuery.data && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardHeader className="pb-2">
-                <p className="text-sm text-slate-500">Total This Period</p>
-                <p className="text-3xl font-semibold tracking-tight text-slate-900">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Total This Period</p>
+                <p className="text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
                   {formatMinutes(weekTotalMinutes)}
                 </p>
               </CardHeader>
               <CardContent>
-                <p className="text-xs text-slate-400">
+                <p className="text-sm text-slate-500">
                   {summary?.total_entries ?? 0} entries
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">Today</p>
+                <p className="text-2xl font-semibold tracking-tight tabular-nums text-slate-900">
+                  {formatMinutes(weekTotalMap.get(todayStr()) ?? 0)}
+                </p>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-slate-500">
+                  {entries.filter((e) => e.date === todayStr()).length} entries
                 </p>
               </CardContent>
             </Card>
 
             <Card className="sm:col-span-2 xl:col-span-1">
               <CardHeader className="pb-2">
-                <p className="text-sm text-slate-500">Today</p>
-                <p className="text-3xl font-semibold tracking-tight text-slate-900">
-                  {formatMinutes(weekTotalMap.get(todayStr()) ?? 0)}
-                </p>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-slate-400">
-                  {entries.filter((e) => e.date === todayStr()).length} entries
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Weekly bar */}
-            <Card className="sm:col-span-2">
-              <CardHeader className="pb-2">
-                <p className="text-sm text-slate-500">This Week</p>
+                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">This Week</p>
               </CardHeader>
               <CardContent>
                 <div className="flex items-end gap-1.5" style={{ height: 64 }}>
@@ -310,7 +309,7 @@ export function TimeTrackingPage() {
                           style={{ height: `${Math.max(pct, mins > 0 ? 8 : 0)}%` }}
                           title={`${d}: ${formatMinutes(mins)}`}
                         />
-                        <span className="text-[10px] text-slate-400">
+                        <span className="text-[11px] text-slate-500">
                           {new Date(d + "T00:00:00").toLocaleDateString("en", { weekday: "short" }).slice(0, 2)}
                         </span>
                       </div>
@@ -342,7 +341,7 @@ export function TimeTrackingPage() {
                           }}
                         />
                       </div>
-                      <span className="w-16 text-right text-sm font-medium text-slate-900">
+                      <span className="w-20 text-right text-sm font-semibold text-slate-900">
                         {formatMinutes(p.total_minutes)}
                       </span>
                     </div>
@@ -469,7 +468,6 @@ export function TimeTrackingPage() {
         </div>
       )}
 
-      {/* Create / Edit Modal */}
       <Modal
         open={formOpen}
         onClose={closeForm}
@@ -492,7 +490,7 @@ export function TimeTrackingPage() {
       >
         <form id="time-entry-form" onSubmit={handleSubmit} className="space-y-4">
           {formGlobalError && (
-            <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
               {formGlobalError}
             </div>
           )}
@@ -568,7 +566,6 @@ export function TimeTrackingPage() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation */}
       <Modal
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}

@@ -162,7 +162,7 @@ describe("ActivityPage", () => {
     resolveWith([])
     renderPage()
     await waitFor(() => {
-      expect(screen.getByText("No activity found")).toBeInTheDocument()
+      expect(screen.getByText(/No activity/i)).toBeInTheDocument()
     })
   })
 

@@ -142,7 +142,7 @@ export function CreateTaskModal({
         <div>
           <label
             htmlFor="task-desc"
-            className="mb-1.5 block text-sm font-medium text-slate-700"
+            className="mb-1.5 block text-sm font-medium text-surface-700"
           >
             Description
           </label>
@@ -154,7 +154,7 @@ export function CreateTaskModal({
             onChange={(e) =>
               setForm((f) => ({ ...f, description: e.target.value }))
             }
-            className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+            className="block w-full rounded-lg border border-surface-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-surface-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
           />
         </div>
 

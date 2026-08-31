@@ -20,14 +20,14 @@ export function ErrorState({
   className,
 }: ErrorStateProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center px-6 py-20 text-center", className)}>
-      <div className="flex size-14 items-center justify-center rounded-full bg-red-50 text-red-500">
-        <AlertTriangleIcon className="size-7" />
+    <div className={cn("flex flex-col items-center justify-center px-6 py-16 text-center", className)}>
+      <div className="flex size-12 items-center justify-center rounded-lg bg-red-50 text-red-500">
+        <AlertTriangleIcon className="size-6" />
       </div>
-      <h3 className="mt-5 text-base font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1.5 max-w-sm text-sm text-slate-500">{description}</p>
+      <h3 className="mt-4 text-sm font-semibold text-slate-900">{title}</h3>
+      <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>
       {(onRetry || action) && (
-        <div className="mt-6">
+        <div className="mt-5">
           {action ?? (
             <Button variant="secondary" size="sm" onClick={onRetry}>
               Try again

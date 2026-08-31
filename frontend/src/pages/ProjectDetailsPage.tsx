@@ -112,10 +112,6 @@ export function ProjectDetailsPage() {
   const deleteMutation = useMutation({
     mutationFn: deleteProject,
     onSuccess: () => {
-      // The project is gone; cancel any queued refetch and remove its cached
-      // query rather than invalidating it, otherwise TanStack refetches the
-      // (now deleted) resource and returns a spurious 404 right after delete
-      // (BUG-3).
       const key = queryKeys.project(id!)
       void queryClient.cancelQueries({ queryKey: key })
       queryClient.removeQueries({ queryKey: key })
@@ -193,12 +189,12 @@ export function ProjectDetailsPage() {
       )}
 
       {project && (
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <InfoRow label="Customer">{project.customer_name || "—"}</InfoRow>
               <InfoRow label="Manager">{project.manager_name || "—"}</InfoRow>
               <InfoRow label="Status"><StatusBadge value={project.status} /></InfoRow>
@@ -206,7 +202,7 @@ export function ProjectDetailsPage() {
               <InfoRow label="Start date">{project.start_date ? formatDate(project.start_date) : "—"}</InfoRow>
               <InfoRow label="Deadline">{project.deadline ? formatDate(project.deadline) : "—"}</InfoRow>
               {project.description && (
-                <div className="pt-2">
+                <div className="pt-1">
                   <p className="text-sm font-medium text-slate-500">Description</p>
                   <p className="mt-1 whitespace-pre-wrap text-sm text-slate-700">{project.description}</p>
                 </div>
@@ -222,7 +218,6 @@ export function ProjectDetailsPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
       <Modal
         open={editOpen}
         onClose={closeEdit}
@@ -243,7 +238,7 @@ export function ProjectDetailsPage() {
       >
         <form id="project-edit-form" onSubmit={handleSave} className="space-y-4">
           {formGlobalError && (
-            <div role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
               {formGlobalError}
             </div>
           )}
@@ -263,7 +258,7 @@ export function ProjectDetailsPage() {
               rows={3}
               value={form.description ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-              className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-0"
+              className="block w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -327,7 +322,6 @@ export function ProjectDetailsPage() {
         </form>
       </Modal>
 
-      {/* Archive Confirmation */}
       <Modal
         open={archiveOpen}
         onClose={() => setArchiveOpen(false)}
@@ -351,7 +345,6 @@ export function ProjectDetailsPage() {
         </p>
       </Modal>
 
-      {/* Delete Confirmation */}
       <Modal
         open={deleteOpen}
         onClose={() => setDeleteOpen(false)}

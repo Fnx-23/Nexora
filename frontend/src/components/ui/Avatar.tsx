@@ -3,8 +3,8 @@ import { cn } from "@/utils/cn"
 type AvatarSize = "xs" | "sm" | "md" | "lg"
 
 const sizeClasses: Record<AvatarSize, string> = {
-  xs: "size-6 text-[10px]",
-  sm: "size-8 text-xs",
+  xs: "size-7 text-[11px]",
+  sm: "size-9 text-xs",
   md: "size-10 text-sm",
   lg: "size-12 text-base",
 }
@@ -52,7 +52,11 @@ export function Avatar({ name, src, size = "md", className }: AvatarProps) {
         className,
       )}
     >
-      {src ? <img src={src} alt={name} className="size-full object-cover" /> : initialsOf(name)}
+      {src ? (
+        <img src={src} alt={name} className="size-full object-cover" />
+      ) : (
+        initialsOf(name)
+      )}
     </span>
   )
 }

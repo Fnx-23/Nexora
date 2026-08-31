@@ -50,7 +50,7 @@ function entityColor(type: string): string {
     case "membership":
       return "bg-amber-50 text-amber-700"
     default:
-      return "bg-slate-50 text-slate-700"
+      return "bg-slate-100 text-slate-600"
   }
 }
 
@@ -131,9 +131,9 @@ export function NotificationBell() {
         type="button"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
         onClick={() => setOpen((v) => !v)}
-        className="relative rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        className="relative rounded-md p-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
       >
-        <BellIcon className="size-5" />
+        <BellIcon className="size-4" />
         {unreadCount > 0 && (
           <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
             {unreadCount > 9 ? "9+" : unreadCount}
@@ -145,9 +145,9 @@ export function NotificationBell() {
         <div
           ref={dropdownRef}
           role="menu"
-          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+          className="absolute right-0 z-50 mt-1.5 w-80 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg"
         >
-          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
             <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
             {unreadCount > 0 && (
               <button
@@ -162,11 +162,11 @@ export function NotificationBell() {
 
           <div className="max-h-80 overflow-y-auto">
             {notificationsQuery.isPending && (
-              <div className="px-4 py-8 text-center text-sm text-slate-500">Loading…</div>
+              <div className="px-4 py-6 text-center text-sm text-slate-500">Loading…</div>
             )}
 
             {!notificationsQuery.isPending && notifications.length === 0 && (
-              <div className="px-4 py-8 text-center text-sm text-slate-500">
+              <div className="px-4 py-6 text-center text-sm text-slate-500">
                 No notifications yet.
               </div>
             )}
@@ -177,13 +177,13 @@ export function NotificationBell() {
                 to={n.link || "#"}
                 onClick={() => handleNotificationClick(n)}
                 className={cn(
-                  "flex gap-3 border-b border-slate-50 px-4 py-3 transition-colors hover:bg-slate-50",
-                  !n.is_read && "bg-brand-50/30",
+                  "flex gap-3 border-b border-slate-50 px-4 py-2.5 transition-colors hover:bg-slate-50",
+                  !n.is_read && "bg-brand-50/40",
                 )}
               >
                 <span
                   className={cn(
-                    "flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold",
+                    "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
                     entityColor(n.entity_type),
                   )}
                 >
@@ -198,7 +198,7 @@ export function NotificationBell() {
                   </p>
                 </div>
                 {!n.is_read && (
-                  <span className="mt-1 size-2 shrink-0 rounded-full bg-brand-500" />
+                  <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-brand-500" />
                 )}
               </Link>
             ))}
