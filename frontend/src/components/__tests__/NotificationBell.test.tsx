@@ -32,8 +32,9 @@ const MOCK_NOTIFICATIONS = [
     entity_type: "task",
     entity_id: "t1",
     entity_name: "Fix bug",
-    link: "/tasks",
+    link: "/tasks/t1",
     is_read: false,
+    category: "task_assigned",
     actor_name: "Admin Test",
     created_at: "2025-08-20T10:00:00Z",
   },
@@ -45,6 +46,7 @@ const MOCK_NOTIFICATIONS = [
     entity_name: "Website",
     link: "/projects/p1",
     is_read: true,
+    category: "project_assigned",
     actor_name: "Admin Test",
     created_at: "2025-08-19T08:00:00Z",
   },
@@ -160,7 +162,6 @@ describe("NotificationBell", () => {
       await waitFor(() => {
         expect(screen.getByText(/assigned to task/)).toBeInTheDocument()
       })
-      // Unread notification has a dot (bg-brand-500 span)
       const dots = document.querySelectorAll(".bg-brand-500")
       expect(dots.length).toBeGreaterThanOrEqual(1)
     })

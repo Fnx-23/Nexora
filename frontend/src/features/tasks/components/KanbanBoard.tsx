@@ -21,12 +21,14 @@ interface KanbanBoardProps {
   tasks: Task[]
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void
   onTaskClick: (task: Task) => void
+  onQuickCreate: (status: TaskStatus) => void
 }
 
 export function KanbanBoard({
   tasks,
   onStatusChange,
   onTaskClick,
+  onQuickCreate,
 }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null)
 
@@ -76,7 +78,6 @@ export function KanbanBoard({
       const taskId = active.id as string
       const overId = over.id as string
 
-      // Dropped over a column header
       if (KANBAN_COLUMNS.includes(overId as TaskStatus)) {
         const newStatus = overId as TaskStatus
         const task = tasks.find((t) => t.id === taskId)
@@ -86,7 +87,6 @@ export function KanbanBoard({
         return
       }
 
-      // Dropped over another task — find which column that task is in
       const overTask = tasks.find((t) => t.id === overId)
       if (overTask) {
         const newStatus = overTask.status
@@ -118,6 +118,7 @@ export function KanbanBoard({
             status={status}
             tasks={tasksByStatus[status]}
             onTaskClick={onTaskClick}
+            onQuickCreate={onQuickCreate}
           />
         ))}
       </div>

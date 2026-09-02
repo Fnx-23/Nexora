@@ -58,6 +58,12 @@ const MOCK_TASKS = [
     due_date: "2025-12-01",
     created_at: "2025-01-15T10:00:00Z",
     updated_at: "2025-01-15T10:00:00Z",
+    labels: [],
+    checklist_total: 2,
+    checklist_done: 1,
+    subtask_total: 3,
+    subtask_done: 0,
+    comments_count: 4,
   },
   {
     id: "t2",
@@ -74,6 +80,12 @@ const MOCK_TASKS = [
     due_date: null,
     created_at: "2025-02-20T14:00:00Z",
     updated_at: "2025-02-20T14:00:00Z",
+    labels: [],
+    checklist_total: 0,
+    checklist_done: 0,
+    subtask_total: 0,
+    subtask_done: 0,
+    comments_count: 0,
   },
   {
     id: "t3",
@@ -90,6 +102,12 @@ const MOCK_TASKS = [
     due_date: "2025-06-15",
     created_at: "2025-03-10T09:00:00Z",
     updated_at: "2025-03-10T09:00:00Z",
+    labels: [],
+    checklist_total: 1,
+    checklist_done: 1,
+    subtask_total: 1,
+    subtask_done: 1,
+    comments_count: 2,
   },
   {
     id: "t4",
@@ -106,6 +124,12 @@ const MOCK_TASKS = [
     due_date: "2025-03-01",
     created_at: "2025-01-01T08:00:00Z",
     updated_at: "2025-01-01T08:00:00Z",
+    labels: [],
+    checklist_total: 0,
+    checklist_done: 0,
+    subtask_total: 0,
+    subtask_done: 0,
+    comments_count: 0,
   },
 ]
 
@@ -161,9 +185,6 @@ beforeEach(() => {
 })
 
 describe("TasksPage", () => {
-  // -----------------------------------------------------------------------
-  // Rendering
-  // -----------------------------------------------------------------------
 
   describe("rendering", () => {
     it("shows loading state", () => {
@@ -243,9 +264,6 @@ describe("TasksPage", () => {
     })
   })
 
-  // -----------------------------------------------------------------------
-  // Task creation
-  // -----------------------------------------------------------------------
 
   describe("task creation", () => {
     it("opens create modal on New task click", async () => {
@@ -277,9 +295,6 @@ describe("TasksPage", () => {
     })
   })
 
-  // -----------------------------------------------------------------------
-  // Status change (mocking the DnD behavior via mutation)
-  // -----------------------------------------------------------------------
 
   describe("status change", () => {
     it("calls changeTaskStatus on drag end", async () => {
@@ -291,8 +306,6 @@ describe("TasksPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Fix login bug")).toBeInTheDocument()
       })
-      // The actual DnD event is hard to simulate in JSDOM,
-      // but we verify the API mock is wired up
       expect(tasksApi.changeTaskStatus).not.toHaveBeenCalled()
     })
 
@@ -301,14 +314,10 @@ describe("TasksPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Fix login bug")).toBeInTheDocument()
       })
-      // Verify the mutation function is available
       expect(tasksApi.changeTaskStatus).toBeDefined()
     })
   })
 
-  // -----------------------------------------------------------------------
-  // Failed status update
-  // -----------------------------------------------------------------------
 
   describe("failed status update", () => {
     it("changeTaskStatus function exists and can be mocked to reject", async () => {
@@ -319,16 +328,12 @@ describe("TasksPage", () => {
       await waitFor(() => {
         expect(screen.getByText("Fix login bug")).toBeInTheDocument()
       })
-      // Verify the mock can reject (used in integration scenarios)
       await expect(
         tasksApi.changeTaskStatus("t1", "IN_PROGRESS"),
       ).rejects.toThrow("Permission denied")
     })
   })
 
-  // -----------------------------------------------------------------------
-  // Filters
-  // -----------------------------------------------------------------------
 
   describe("filters", () => {
     it("shows search input and priority filter", async () => {

@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
 import { Select } from "@/components/ui/Select"
 import { Modal } from "@/components/ui/Modal"
-import type { TaskPriority } from "@/types/task"
+import { cn } from "@/utils/cn"
+import type { TaskLabel, TaskPriority, TaskStatus } from "@/types/task"
 import { createTask, type CreateTaskPayload } from "@/features/tasks/api"
 import type { Project } from "@/types/project"
 import type { Member } from "@/types/team"
@@ -15,6 +16,8 @@ interface CreateTaskModalProps {
   onCreated: () => void
   projects: Project[]
   members: Member[]
+  labels?: TaskLabel[]
+  defaultStatus?: TaskStatus
 }
 
 const PRIORITY_OPTIONS: { value: TaskPriority; label: string }[] = [
@@ -30,29 +33,39 @@ export function CreateTaskModal({
   onCreated,
   projects,
   members,
+  labels = [],
+  defaultStatus = "TODO",
 }: CreateTaskModalProps) {
   const [form, setForm] = useState<CreateTaskPayload>({
     title: "",
     description: "",
     project: null,
-    status: "TODO",
+    status: defaultStatus,
     priority: "MEDIUM",
     assignee: null,
     due_date: null,
+    label_ids: [],
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [globalError, setGlobalError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (open) {
+      setForm((f) => ({ ...f, status: defaultStatus, label_ids: [] }))
+    }
+  }, [open, defaultStatus])
 
   function reset() {
     setForm({
       title: "",
       description: "",
       project: null,
-      status: "TODO",
+      status: defaultStatus,
       priority: "MEDIUM",
       assignee: null,
       due_date: null,
+      label_ids: [],
     })
     setErrors({})
     setGlobalError(null)
@@ -229,6 +242,44 @@ export function CreateTaskModal({
             }
           />
         </div>
+
+        {labels.length > 0 && (
+          <div>
+            <p className="mb-1.5 text-sm font-medium text-slate-700">Labels</p>
+            <div className="flex flex-wrap gap-2">
+              {labels.map((label) => {
+                const selected = form.label_ids?.includes(label.id) ?? false
+                return (
+                  <button
+                    key={label.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() =>
+                      setForm((f) => ({
+                        ...f,
+                        label_ids: selected
+                          ? (f.label_ids ?? []).filter((v) => v !== label.id)
+                          : [...(f.label_ids ?? []), label.id],
+                      }))
+                    }
+                    className={cn(
+                      "inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium transition-colors",
+                      selected
+                        ? "border-brand-300 bg-brand-50 text-brand-700"
+                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+                    )}
+                  >
+                    <span
+                      className="size-2 rounded-full"
+                      style={{ backgroundColor: label.color }}
+                    />
+                    {label.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </form>
     </Modal>
   )

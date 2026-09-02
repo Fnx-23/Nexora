@@ -261,7 +261,6 @@ export function TimeTrackingPage() {
 
       {entriesQuery.data && (
         <div className="space-y-4">
-          {/* Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <Card>
               <CardHeader className="pb-2">
@@ -320,7 +319,6 @@ export function TimeTrackingPage() {
             </Card>
           </div>
 
-          {/* By-project breakdown */}
           {summary && summary.by_project.length > 0 && (
             <Card>
               <CardHeader>
@@ -351,7 +349,6 @@ export function TimeTrackingPage() {
             </Card>
           )}
 
-          {/* Filters */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <Select
               value={projectFilter}
@@ -385,7 +382,6 @@ export function TimeTrackingPage() {
             )}
           </div>
 
-          {/* Entries Table */}
           {entries.length === 0 ? (
             <EmptyState
               title="No time entries"

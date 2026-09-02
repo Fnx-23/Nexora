@@ -58,25 +58,18 @@ class TestSeedCreatesExpectedData:
         }
         for email, expected_role in role_map.items():
             user = User.objects.get(email=email)
-            assert Membership.objects.get(
-                company=company, user=user
-            ).role == expected_role
+            assert Membership.objects.get(company=company, user=user).role == expected_role
 
     def test_creates_four_customers(self):
         company = Company.objects.get(slug="nexora-demo")
-        names = {
-            c.company_name
-            for c in Customer.objects.filter(company=company)
-        }
+        names = {c.company_name for c in Customer.objects.filter(company=company)}
         expected = {"Atlas Logistics", "Nova Retail", "Horizon Labs", "Maghreb Digital"}
         assert names == expected
 
     def test_creates_three_projects(self):
         company = Company.objects.get(slug="nexora-demo")
         assert Project.objects.filter(company=company).count() == 3
-        project_names = set(
-            Project.objects.filter(company=company).values_list("name", flat=True)
-        )
+        project_names = set(Project.objects.filter(company=company).values_list("name", flat=True))
         expected = {
             "Cloud Infrastructure Migration",
             "E-commerce Platform",
@@ -90,9 +83,7 @@ class TestSeedCreatesExpectedData:
 
     def test_tasks_cover_all_kanban_states(self):
         company = Company.objects.get(slug="nexora-demo")
-        statuses = set(
-            Task.objects.filter(company=company).values_list("status", flat=True)
-        )
+        statuses = set(Task.objects.filter(company=company).values_list("status", flat=True))
         expected = {"TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"}
         assert statuses == expected
 

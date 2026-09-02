@@ -1,4 +1,3 @@
-/** Shared API response types matching the backend envelope. */
 
 export interface Paginated<T> {
   count: number

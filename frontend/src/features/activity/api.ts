@@ -12,14 +12,6 @@ export interface ActivityListParams {
   ordering?: string
 }
 
-/**
- * React Query keys for the activity feature.
- *
- * Kept local to the feature (rather than in the shared `queryKeys` factory) so
- * the audit log stays self-contained and does not couple to unrelated features.
- * Every key is scoped by `companyId` so a tenant switch never serves cached
- * data from another company.
- */
 export const activityKeys = {
   all: (companyId: string | null) => ["activities", companyId] as const,
   list: (companyId: string | null, params: ActivityListParams) =>
@@ -28,7 +20,6 @@ export const activityKeys = {
     ["activities", companyId, "recent", limit] as const,
 }
 
-/** Fetch a page of audit-log activities for the active company (read-only). */
 export async function fetchActivities(
   params: ActivityListParams = {},
 ): Promise<Paginated<Activity>> {

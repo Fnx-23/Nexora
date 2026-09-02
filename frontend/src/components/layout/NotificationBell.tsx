@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { Link } from "react-router-dom"
 
@@ -17,8 +17,7 @@ import type { Notification } from "@/types/notification"
 function timeAgo(isoDate: string): string {
   const now = Date.now()
   const then = new Date(isoDate).getTime()
-  const diffMs = now - then
-  const diffMin = Math.floor(diffMs / 60_000)
+  const diffMin = Math.floor((now - then) / 60_000)
   if (diffMin < 1) return "Just now"
   if (diffMin < 60) return `${diffMin}m ago`
   const diffHr = Math.floor(diffMin / 60)
@@ -36,6 +35,8 @@ function entityIcon(type: string): string {
       return "P"
     case "membership":
       return "M"
+    case "invitation":
+      return "I"
     default:
       return "N"
   }
@@ -49,9 +50,31 @@ function entityColor(type: string): string {
       return "bg-brand-50 text-brand-700"
     case "membership":
       return "bg-amber-50 text-amber-700"
+    case "invitation":
+      return "bg-violet-50 text-violet-700"
     default:
       return "bg-slate-100 text-slate-600"
   }
+}
+
+type Grouped = { label: string; items: Notification[] }[]
+
+function groupNotifications(items: Notification[]): Grouped {
+  const now = new Date()
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const startOfWeek = startOfDay - 6 * 86_400_000
+  const groups: Grouped = [
+    { label: "Today", items: [] },
+    { label: "This week", items: [] },
+    { label: "Earlier", items: [] },
+  ]
+  for (const n of items) {
+    const ts = new Date(n.created_at).getTime()
+    if (ts >= startOfDay) groups[0].items.push(n)
+    else if (ts >= startOfWeek) groups[1].items.push(n)
+    else groups[2].items.push(n)
+  }
+  return groups.filter((g) => g.items.length > 0)
 }
 
 export function NotificationBell() {
@@ -111,7 +134,11 @@ export function NotificationBell() {
   }, [open, handleClickOutside])
 
   const unreadCount = unreadQuery.data?.count ?? 0
-  const notifications = notificationsQuery.data?.results ?? []
+  const notifications = useMemo(
+    () => notificationsQuery.data?.results ?? [],
+    [notificationsQuery.data],
+  )
+  const grouped = useMemo(() => groupNotifications(notifications), [notifications])
 
   function handleNotificationClick(notification: Notification) {
     if (!notification.is_read) {
@@ -148,7 +175,14 @@ export function NotificationBell() {
           className="absolute right-0 z-50 mt-1.5 w-80 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg"
         >
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-2.5">
-            <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900">Notifications</h3>
+              {unreadCount > 0 && (
+                <p className="text-xs text-slate-400">
+                  {unreadCount} unread notification{unreadCount === 1 ? "" : "s"}
+                </p>
+              )}
+            </div>
             {unreadCount > 0 && (
               <button
                 type="button"
@@ -171,36 +205,48 @@ export function NotificationBell() {
               </div>
             )}
 
-            {notifications.map((n) => (
-              <Link
-                key={n.id}
-                to={n.link || "#"}
-                onClick={() => handleNotificationClick(n)}
-                className={cn(
-                  "flex gap-3 border-b border-slate-50 px-4 py-2.5 transition-colors hover:bg-slate-50",
-                  !n.is_read && "bg-brand-50/40",
-                )}
-              >
-                <span
-                  className={cn(
-                    "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
-                    entityColor(n.entity_type),
-                  )}
-                >
-                  {entityIcon(n.entity_type)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p className={cn("text-sm leading-snug", n.is_read ? "text-slate-600" : "font-medium text-slate-900")}>
-                    {n.verb}
-                  </p>
-                  <p className="mt-0.5 text-xs text-slate-400">
-                    {n.actor_name} · {timeAgo(n.created_at)}
-                  </p>
-                </div>
-                {!n.is_read && (
-                  <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-brand-500" />
-                )}
-              </Link>
+            {grouped.map((group) => (
+              <div key={group.label}>
+                <p className="bg-slate-50 px-4 py-1.5 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+                  {group.label}
+                </p>
+                {group.items.map((n) => (
+                  <Link
+                    key={n.id}
+                    to={n.link || "#"}
+                    onClick={() => handleNotificationClick(n)}
+                    className={cn(
+                      "flex gap-3 border-b border-slate-50 px-4 py-2.5 transition-colors hover:bg-slate-50",
+                      !n.is_read && "bg-brand-50/40",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-semibold",
+                        entityColor(n.entity_type),
+                      )}
+                    >
+                      {entityIcon(n.entity_type)}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p
+                        className={cn(
+                          "text-sm leading-snug",
+                          n.is_read ? "text-slate-600" : "font-medium text-slate-900",
+                        )}
+                      >
+                        {n.verb}
+                      </p>
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        {n.actor_name} · {timeAgo(n.created_at)}
+                      </p>
+                    </div>
+                    {!n.is_read && (
+                      <span className="mt-0.5 size-1.5 shrink-0 rounded-full bg-brand-500" />
+                    )}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
 

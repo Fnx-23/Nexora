@@ -11,9 +11,6 @@ from django.db import models
 
 from apps.core.db.models import TenantedModel
 
-# ---------------------------------------------------------------------------
-# Security constants
-# ---------------------------------------------------------------------------
 ALLOWED_MIME_TYPES = {
     "application/pdf",
     "image/png",
@@ -79,6 +76,7 @@ class EntityKind(models.TextChoices):
     COMPANY = "COMPANY", "Company"
     PROJECT = "PROJECT", "Project"
     CUSTOMER = "CUSTOMER", "Customer"
+    TASK = "TASK", "Task"
 
 
 class Document(TenantedModel):
@@ -89,9 +87,6 @@ class Document(TenantedModel):
         max_length=500,
         validators=[
             FileExtensionValidator(
-                # sorted() keeps the generated migration deterministic;
-                # ALLOWED_EXTENSIONS is a set, whose iteration order varies per
-                # process and would otherwise cause makemigrations drift.
                 allowed_extensions=sorted(e.lstrip(".") for e in ALLOWED_EXTENSIONS),
             ),
         ],

@@ -16,9 +16,6 @@ User = get_user_model()
 DUPLICATE_EMAIL_MESSAGE = "A user with this email already exists."
 SLUG_EXHAUSTED_MESSAGE = "Could not allocate a unique company identifier."
 
-# Upper bound for slug-collision retries. The suffix space is effectively
-# inexhaustible, so hitting the cap signals a pathological condition rather
-# than a realistic workload.
 _MAX_SLUG_ATTEMPTS = 25
 
 
@@ -44,8 +41,6 @@ def _create_company_with_unique_slug(name: str) -> Company:
     for counter in range(1, _MAX_SLUG_ATTEMPTS + 1):
         slug = base if counter == 1 else f"{base}-{counter}"
         try:
-            # Nested atomic block -> SAVEPOINT: an IntegrityError here cannot
-            # poison the surrounding registration transaction.
             with transaction.atomic():
                 return Company.objects.create(name=name, slug=slug)
         except IntegrityError:
@@ -67,9 +62,6 @@ def register_company(
 
     This is the bootstrap path for new tenants.
     """
-    # Normalize at the service boundary so every caller (HTTP, admin tooling,
-    # fixtures) shares one canonical form; the manager normalizes again as
-    # defense in depth.
     email = User.objects.normalize_email(email)
     if User.objects.filter(email__iexact=email).exists():
         raise ApplicationError(DUPLICATE_EMAIL_MESSAGE)
@@ -82,9 +74,6 @@ def register_company(
             last_name=last_name,
         )
     except IntegrityError:
-        # A concurrent registration raced past the existence check. The
-        # database unique constraint is authoritative; surface the same
-        # domain error instead of a 500.
         raise ApplicationError(DUPLICATE_EMAIL_MESSAGE) from None
     company = _create_company_with_unique_slug(company_name)
     membership = Membership.objects.create(

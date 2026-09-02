@@ -28,9 +28,15 @@ interface KanbanColumnProps {
   status: TaskStatus
   tasks: Task[]
   onTaskClick: (task: Task) => void
+  onQuickCreate: (status: TaskStatus) => void
 }
 
-export function KanbanColumn({ status, tasks, onTaskClick }: KanbanColumnProps) {
+export function KanbanColumn({
+  status,
+  tasks,
+  onTaskClick,
+  onQuickCreate,
+}: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: status,
     data: { status },
@@ -48,6 +54,18 @@ export function KanbanColumn({ status, tasks, onTaskClick }: KanbanColumnProps) 
         <span className="ml-auto text-xs font-medium text-slate-400">
           {tasks.length}
         </span>
+        <button
+          type="button"
+          title={`Add task to ${KANBAN_COLUMN_LABELS[status]}`}
+          aria-label={`Add task to ${KANBAN_COLUMN_LABELS[status]}`}
+          onClick={() => onQuickCreate(status)}
+          className="rounded-md p-1 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="size-4">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
       </div>
 
       <div

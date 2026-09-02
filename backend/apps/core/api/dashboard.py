@@ -62,7 +62,6 @@ class DashboardView(APIView):
     def get(self, request):
         company = request.company
 
-        # --- Aggregate counts (single query per model via aggregates) ---
         project_counts = dict(
             Project.objects.filter(company=company)
             .values_list("status")
@@ -101,19 +100,16 @@ class DashboardView(APIView):
             is_active=True,
         ).count()
 
-        # --- Project status distribution (for chart) ---
         project_status_dist = [
             {"status": s, "label": label, "count": project_counts.get(s, 0)}
             for s, label in ProjectStatus.choices
         ]
 
-        # --- Task status distribution (for chart) ---
         task_status_dist = [
             {"status": s, "label": label, "count": task_counts.get(s, 0)}
             for s, label in TaskStatus.choices
         ]
 
-        # --- Recent items (limited, with select_related to avoid N+1) ---
         recent_projects = Project.objects.filter(company=company).order_by("-updated_at")[:5]
         recent_tasks = (
             Task.objects.select_related("assignee")
@@ -121,7 +117,6 @@ class DashboardView(APIView):
             .order_by("-updated_at")[:10]
         )
 
-        # --- Activity feed (combined recent project + task updates) ---
         activity = []
         for p in recent_projects:
             activity.append(
@@ -143,7 +138,6 @@ class DashboardView(APIView):
                     "updated_at": t.updated_at.isoformat(),
                 }
             )
-        # Sort by updated_at descending, take top 10
         activity.sort(key=lambda x: x["updated_at"], reverse=True)
         activity = activity[:10]
 

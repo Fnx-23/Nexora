@@ -19,6 +19,7 @@ vi.mock("@/features/projects/api", () => ({
   createProject: vi.fn(),
   updateProject: vi.fn(),
   archiveProject: vi.fn(),
+  restoreProject: vi.fn(),
   deleteProject: vi.fn(),
 }))
 
@@ -118,6 +119,10 @@ beforeEach(() => {
     results: [],
   })
   vi.mocked(teamApi.fetchMembers).mockResolvedValue([])
+  vi.mocked(projectsApi.restoreProject).mockResolvedValue({
+    ...MOCK_PROJECTS[0],
+    status: "IN_PROGRESS",
+  })
 })
 
 describe("ProjectsPage", () => {
@@ -148,7 +153,6 @@ describe("ProjectsPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Website Redesign")).toBeInTheDocument()
     })
-    // StatusBadge renders the text value with spaces replacing underscores
     expect(screen.getByText("In progress")).toBeInTheDocument()
     expect(screen.getByText("Planning")).toBeInTheDocument()
     expect(screen.getByText("HIGH")).toBeInTheDocument()
@@ -267,6 +271,54 @@ describe("ProjectsPage", () => {
     expect(within(row).queryByRole("button", { name: "Archive" })).not.toBeInTheDocument()
   })
 
+  it("ARCHIVED projects show a Restore button", async () => {
+    vi.mocked(projectsApi.fetchProjects).mockResolvedValue({
+      count: 1,
+      next: null,
+      previous: null,
+      results: [
+        {
+          ...MOCK_PROJECTS[0],
+          status: "ARCHIVED",
+        },
+      ],
+    })
+    renderPage()
+    await waitFor(() => {
+      expect(screen.getByText("Website Redesign")).toBeInTheDocument()
+    })
+
+    const row = screen.getByText("Website Redesign").closest("tr")!
+    const restoreBtn = within(row).getByRole("button", { name: "Restore" })
+    await userEvent.setup().click(restoreBtn)
+
+    expect(projectsApi.restoreProject).toHaveBeenCalledWith("p1", "IN_PROGRESS")
+  })
+
+  it("shows health badge for a project", async () => {
+    vi.mocked(projectsApi.fetchProjects).mockResolvedValue({
+      count: 1,
+      next: null,
+      previous: null,
+      results: [
+        {
+          ...MOCK_PROJECTS[0],
+          progress: 50,
+          health: "AT_RISK",
+          member_count: 3,
+        },
+      ],
+    })
+    renderPage()
+    await waitFor(() => {
+      expect(screen.getByText("Website Redesign")).toBeInTheDocument()
+    })
+
+    expect(screen.getByText(/At risk/i)).toBeInTheDocument()
+    expect(screen.getByText("50%")).toBeInTheDocument()
+    expect(screen.getByText(/3 members/)).toBeInTheDocument()
+  })
+
   it("shows pagination when multiple pages", async () => {
     vi.mocked(projectsApi.fetchProjects).mockResolvedValue({
       count: 30,
@@ -303,7 +355,6 @@ describe("ProjectsPage", () => {
     await waitFor(() => {
       expect(screen.getByText("Mobile App")).toBeInTheDocument()
     })
-    // Mobile App has no deadline, so we should see a dash placeholder
     const mobileRow = screen.getByText("Mobile App").closest("tr")!
     expect(mobileRow).toBeInTheDocument()
   })

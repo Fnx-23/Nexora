@@ -1,21 +1,37 @@
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Outlet } from "react-router-dom"
 
+import { CommandPalette } from "@/components/command/CommandPalette"
 import { Navbar } from "@/components/layout/Navbar"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { XIcon } from "@/components/icons"
 
+function useKeyboardShortcuts(togglePalette: () => void) {
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault()
+        togglePalette()
+      }
+    }
+    document.addEventListener("keydown", onKeyDown)
+    return () => document.removeEventListener("keydown", onKeyDown)
+  }, [togglePalette])
+}
+
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [paletteOpen, setPaletteOpen] = useState(false)
+
+  const togglePalette = useCallback(() => setPaletteOpen((open) => !open), [])
+  useKeyboardShortcuts(togglePalette)
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[256px] lg:block">
         <Sidebar />
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div role="presentation" className="fixed inset-0 z-40 lg:hidden">
           <div
@@ -37,10 +53,12 @@ export function AppLayout() {
         </div>
       )}
 
-      {/* Main layout */}
       <div className="flex min-h-screen lg:pl-[256px]">
         <div className="flex flex-1 flex-col">
-          <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
+          <Navbar
+            onOpenSidebar={() => setSidebarOpen(true)}
+            onOpenSearch={() => setPaletteOpen(true)}
+          />
           <main className="flex-1 bg-slate-50 px-5 py-7 md:px-8 md:py-8 xl:px-10">
       <div className="mx-auto w-full">
               <Outlet />
@@ -48,6 +66,8 @@ export function AppLayout() {
           </main>
         </div>
       </div>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   )
 }

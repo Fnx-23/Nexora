@@ -1,0 +1,11 @@
+"""Django template for password reset email."""
+<!DOCTYPE html>
+<html>
+<head><title>Password Reset</title></head>
+<body>
+<p>You requested a password reset for your Nexora account.</p>
+<p><a href="{{ reset_link }}">Click here to reset your password</a></p>
+<p>This link expires in 1 hour.</p>
+<p>If you didn't request this, ignore this email.</p>
+</body>
+</html>

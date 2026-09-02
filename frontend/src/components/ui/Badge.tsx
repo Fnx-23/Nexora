@@ -56,7 +56,6 @@ const STATUS_VARIANTS: Record<string, BadgeVariant> = {
   EMPLOYEE: "neutral",
 }
 
-/** Maps domain status/priority/role strings to consistent badge colors. */
 export function StatusBadge({ value, className }: { value: string; className?: string }) {
   const variant = STATUS_VARIANTS[value] ?? "neutral"
   return (

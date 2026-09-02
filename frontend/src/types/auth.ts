@@ -1,4 +1,3 @@
-/** Auth/domain types mirroring the backend serializers (snake_case on purpose). */
 
 export type Role = "ADMIN" | "MANAGER" | "EMPLOYEE"
 
@@ -9,6 +8,8 @@ export interface User {
   last_name: string
   avatar: string | null
   full_name: string
+  is_email_verified?: boolean
+  created_at?: string
 }
 
 export interface CompanyRef {

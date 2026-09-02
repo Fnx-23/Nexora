@@ -249,7 +249,6 @@ export function DocumentManager({
         )}
       </CardContent>
 
-      {/* Rename Modal */}
       <Modal
         open={renameTarget !== null}
         onClose={() => setRenameTarget(null)}
@@ -293,7 +292,6 @@ export function DocumentManager({
         />
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         open={deleteTarget !== null}
         onClose={() => setDeleteTarget(null)}

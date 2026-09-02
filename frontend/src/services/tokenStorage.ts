@@ -1,7 +1,6 @@
 const ACCESS_KEY = "nexora.access"
 const REFRESH_KEY = "nexora.refresh"
 
-/** Thin wrapper around localStorage so token handling has a single home. */
 export const tokenStorage = {
   getAccess(): string | null {
     return localStorage.getItem(ACCESS_KEY)

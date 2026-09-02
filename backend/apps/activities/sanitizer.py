@@ -14,9 +14,6 @@ from __future__ import annotations
 import re
 from typing import Any
 
-# Substrings (compared against keys normalized to lowercase alphanumerics) that
-# mark a value as sensitive. Matching keys are dropped entirely — the log records
-# that *something* was redacted via a marker, never the value itself.
 _SENSITIVE_KEY_TOKENS: tuple[str, ...] = (
     "password",
     "passwd",
@@ -95,7 +92,6 @@ def _sanitize(value: Any, depth: int) -> Any:
             return "[nested]"
         return [_sanitize(item, depth + 1) for item in list(value)[:_MAX_LIST_ITEMS]]
 
-    # UUIDs, dates, Decimals, model instances, and anything else become strings.
     return _coerce_scalar(value)
 
 

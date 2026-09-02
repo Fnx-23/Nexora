@@ -56,17 +56,14 @@ def record_activity(
             if entity_id is None:
                 entity_id = getattr(entity, "pk", None)
             if entity_type is None:
-                entity_type = entity._meta.model_name  # e.g. "customer"
+                entity_type = entity._meta.model_name
 
         if company is None:
-            # Nothing to scope the record to — cannot store it safely.
             logger.warning("Skipping activity %s: no company context.", action)
             return None
 
         resolved_actor = get_actor() if actor is _UNSET else actor
 
-        # Savepoint: a DB-level failure in the audit insert rolls back only this
-        # write, never an enclosing transaction the business operation depends on.
         with transaction.atomic():
             return Activity.objects.create(
                 company=company,
@@ -76,6 +73,6 @@ def record_activity(
                 entity_id=entity_id,
                 metadata=sanitize_metadata(metadata or {}),
             )
-    except Exception:  # audit must never break the business operation
+    except Exception:
         logger.exception("Failed to record activity %s", action)
         return None

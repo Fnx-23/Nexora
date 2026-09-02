@@ -144,7 +144,7 @@ describe("ActivityPage", () => {
   })
 
   it("paginates when there is more than one page", async () => {
-    resolveWith(ACTIVITIES, 30) // 30 total / 25 per page => 2 pages
+    resolveWith(ACTIVITIES, 30)
     const user = userEvent.setup()
     renderPage()
     await waitFor(() => expect(screen.getByText("Page 1 of 2")).toBeInTheDocument())

@@ -12,7 +12,6 @@ vi.mock("@/hooks/useAuth", () => ({
   useAuth: vi.fn(),
 }))
 
-// Keep the real query keys; only stub the network call.
 vi.mock("@/features/activity/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/features/activity/api")>()
   return { ...actual, fetchActivities: vi.fn() }
@@ -106,12 +105,9 @@ describe("RecentActivity", () => {
     })
     expect(screen.getByText("Website Redesign")).toBeInTheDocument()
     expect(screen.getByText("Customer created")).toBeInTheDocument()
-    // Humanized status transition derived from metadata.
     expect(screen.getByText("Planning → In progress")).toBeInTheDocument()
     expect(screen.getByText("Employee → Manager")).toBeInTheDocument()
-    // Actor attribution (appears once per row).
     expect(screen.getAllByText(/Admin Test/).length).toBeGreaterThanOrEqual(1)
-    // System-attributed row shows "System".
     expect(screen.getByText(/System/)).toBeInTheDocument()
   })
 

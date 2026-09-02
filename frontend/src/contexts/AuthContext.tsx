@@ -10,7 +10,6 @@ import { AuthContext, type AuthContextValue, type AuthStatus } from "./authConte
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const [status, setStatus] = useState<AuthStatus>("loading")
-  // The /auth/me/ response *is* the user profile plus memberships.
   const [session, setSession] = useState<SessionResponse | null>(null)
 
   const reset = useCallback(() => {

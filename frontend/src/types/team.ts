@@ -1,6 +1,5 @@
 import type { Role } from "@/types/auth"
 
-/** A company member as returned by GET /api/v1/users/. */
 export interface Member {
   id: string
   email: string
@@ -8,4 +7,32 @@ export interface Member {
   last_name: string
   full_name: string
   role: Role | ""
+  membership_id: string
+  membership_active: boolean
+  joined_at: string | null
+}
+
+export type InvitationStatus = "PENDING" | "ACCEPTED" | "EXPIRED" | "REVOKED"
+
+export interface Invitation {
+  id: string
+  email: string
+  role: Role | ""
+  status: InvitationStatus
+  invited_by: string | null
+  invited_by_name: string | null
+  created_at: string
+  expires_at: string
+}
+
+export interface CreateInvitationPayload {
+  email: string
+  role: Role
+}
+
+export interface InvitationValidation {
+  email: string
+  company_name: string
+  role: Role
+  user_exists: boolean
 }

@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom"
 
 import {
   ActivityIcon,
+  BarChartIcon,
   BriefcaseIcon,
   CheckSquareIcon,
   ClockIcon,
@@ -10,6 +11,7 @@ import {
   SettingsIcon,
   UsersIcon,
 } from "@/components/icons"
+import { NexoraLogo } from "@/components/NexoraLogo"
 import { cn } from "@/utils/cn"
 
 interface NavItem {
@@ -21,6 +23,7 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", icon: DashboardIcon, section: "Overview" },
+  { to: "/reports", label: "Reports", icon: BarChartIcon, section: "Overview" },
   { to: "/projects", label: "Projects", icon: FolderIcon, section: "Work" },
   { to: "/customers", label: "Customers", icon: BriefcaseIcon, section: "Work" },
   { to: "/tasks", label: "Tasks", icon: CheckSquareIcon, section: "Work" },
@@ -39,15 +42,11 @@ interface SidebarProps {
 export function Sidebar({ onNavigate }: SidebarProps) {
   return (
     <aside className="flex h-full flex-col bg-slate-900">
-      {/* Logo */}
       <div className="flex h-16 shrink-0 items-center gap-3 border-b border-slate-800/80 px-5">
-        <div className="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white shadow-sm">
-          N
-        </div>
-        <span className="text-base font-semibold tracking-tight text-white">Nexora</span>
+        <NexoraLogo className="size-9 text-brand-500 shrink-0" />
+        <span className="text-lg font-semibold tracking-tight text-white">Nexora</span>
       </div>
 
-      {/* Navigation */}
       <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-3 py-5">
         {SECTION_ORDER.map((sectionLabel) => {
           const sectionItems = NAV_ITEMS.filter((item) => item.section === sectionLabel)
@@ -83,7 +82,6 @@ export function Sidebar({ onNavigate }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="border-t border-slate-800/80 px-5 py-4">
         <p className="text-xs text-slate-600">Nexora v0.1.0</p>
       </div>

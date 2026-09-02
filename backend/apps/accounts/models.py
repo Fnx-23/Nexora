@@ -68,6 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin, UUIDModel):
     email = models.EmailField(unique=True)
     avatar = models.FileField(upload_to=avatar_upload_path, blank=True)
     is_active = models.BooleanField(default=True)
+    is_email_verified = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
@@ -84,8 +85,5 @@ class User(AbstractBaseUser, PermissionsMixin, UUIDModel):
         return full_name or self.email
 
     def save(self, *args, **kwargs):
-        # Last-resort normalization: write paths that bypass the manager
-        # (e.g. the admin's UserCreationForm, scripts, data fixes) must not
-        # be able to persist a mixed-case email.
         self.email = type(self).objects.normalize_email(self.email)
         super().save(*args, **kwargs)

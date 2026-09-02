@@ -1,6 +1,12 @@
 import { api } from "@/services/api"
 import type { Paginated } from "@/types/api"
-import type { Notification, UnreadCountResponse, MarkAllReadResponse } from "@/types/notification"
+import type {
+  Notification,
+  NotificationPreference,
+  NotificationPreferenceKey,
+  UnreadCountResponse,
+  MarkAllReadResponse,
+} from "@/types/notification"
 
 export async function fetchNotifications(params: {
   page?: number
@@ -27,5 +33,17 @@ export async function markNotificationRead(id: string): Promise<Notification> {
 
 export async function markAllNotificationsRead(): Promise<MarkAllReadResponse> {
   const { data } = await api.patch<MarkAllReadResponse>("/notifications/mark-all-read/")
+  return data
+}
+
+export async function fetchNotificationPreferences(): Promise<NotificationPreference> {
+  const { data } = await api.get<NotificationPreference>("/notifications/preferences/")
+  return data
+}
+
+export async function updateNotificationPreferences(
+  updates: Partial<Record<NotificationPreferenceKey, boolean>>,
+): Promise<NotificationPreference> {
+  const { data } = await api.patch<NotificationPreference>("/notifications/preferences/", updates)
   return data
 }

@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom"
 
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
+import { NexoraLogo } from "@/components/NexoraLogo"
 import { useAuth } from "@/hooks/useAuth"
 import { isAxiosErrorWithDetail } from "@/features/auth/errors"
 import type { ApiErrorDetail } from "@/types/api"
@@ -37,13 +38,10 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Brand panel */}
       <div className="hidden w-1/2 flex-col justify-between bg-slate-900 p-12 lg:flex">
-        <div className="flex items-center gap-2.5">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-brand-600 text-base font-bold text-white">
-            N
-          </span>
-          <span className="text-xl font-semibold text-white">Nexora</span>
+        <div className="flex items-center gap-3">
+          <NexoraLogo className="size-12 text-brand-500 shrink-0" />
+          <span className="text-2xl font-bold tracking-tight text-white">Nexora</span>
         </div>
         <div>
           <h1 className="max-w-md text-3xl font-semibold leading-tight text-white">
@@ -57,14 +55,11 @@ export function LoginPage() {
         <p className="text-xs text-slate-600">© 2026 Nexora</p>
       </div>
 
-      {/* Sign-in panel */}
       <div className="flex w-full items-center justify-center bg-white px-6 lg:w-1/2">
         <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2.5 lg:hidden">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-              N
-            </span>
-            <span className="text-lg font-semibold text-slate-900">Nexora</span>
+          <div className="mb-8 flex items-center gap-3 lg:hidden">
+            <NexoraLogo className="size-10 text-brand-600 shrink-0" />
+            <span className="text-xl font-bold text-slate-900">Nexora</span>
           </div>
 
           <h2 className="text-lg font-semibold text-slate-900">Sign in to your workspace</h2>

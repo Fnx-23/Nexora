@@ -121,3 +121,27 @@
     @apply bg-slate-300;
   }
 }
+
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+  aside,
+  header,
+  .print\:hidden {
+    display: none !important;
+  }
+  div.lg\:pl-\[256px\] {
+    padding-left: 0 !important;
+  }
+  main {
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: #ffffff !important;
+  }
+  table, tr, td, th {
+    page-break-inside: avoid;
+  }
+}
+

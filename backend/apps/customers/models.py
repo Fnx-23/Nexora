@@ -12,7 +12,7 @@ class CustomerStatus(models.TextChoices):
 
 
 class Customer(TenantedModel):
-    name = models.CharField("contact name", max_length=120)
+    name = models.CharField("contact name", max_length=120, db_index=True)
     company_name = models.CharField(max_length=200, blank=True, default="")
     email = models.EmailField(blank=True, default="")
     phone = models.CharField(max_length=40, blank=True, default="")

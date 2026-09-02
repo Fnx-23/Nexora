@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from apps.notifications.models import Notification
+from apps.notifications.models import Notification, NotificationPreference
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -18,6 +18,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "entity_name",
             "link",
             "is_read",
+            "category",
             "actor_name",
             "created_at",
         ]
@@ -27,3 +28,31 @@ class NotificationSerializer(serializers.ModelSerializer):
         if obj.actor is None:
             return "System"
         return obj.actor.get_full_name() or obj.actor.email
+
+
+PREFERENCE_FIELDS = [
+    "id",
+    "task_assigned",
+    "task_due_soon",
+    "task_overdue",
+    "task_comment",
+    "project_assigned",
+    "project_deadline",
+    "invitation_received",
+    "role_changed",
+    "email_task_assigned",
+    "email_task_due_soon",
+    "email_task_overdue",
+    "email_task_comment",
+    "email_project_assigned",
+    "email_project_deadline",
+    "email_invitation_received",
+    "email_role_changed",
+]
+
+
+class NotificationPreferenceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationPreference
+        fields = PREFERENCE_FIELDS
+        read_only_fields = ["id"]

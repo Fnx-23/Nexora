@@ -14,10 +14,20 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source="get_full_name", read_only=True)
+    created_at = serializers.DateTimeField(source="date_joined", read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "email", "first_name", "last_name", "avatar", "full_name"]
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "avatar",
+            "full_name",
+            "is_email_verified",
+            "created_at",
+        ]
 
 
 class LoginResponseSerializer(serializers.Serializer):
@@ -66,14 +76,14 @@ class MeSerializer(UserSerializer):
 
 class AvatarUpdateSerializer(serializers.ModelSerializer):
     """
-    Minimal profile mutation: avatar upload only.
+    Minimal profile mutation: avatar upload, first_name, last_name.
 
     All security checks live in ``apps.accounts.validation.validate_avatar_image``.
     """
 
     class Meta:
         model = User
-        fields = ["avatar"]
+        fields = ["avatar", "first_name", "last_name"]
 
     def validate_avatar(self, value):
         return validate_avatar_image(value)
@@ -87,8 +97,6 @@ class RegisterInputSerializer(serializers.Serializer):
     company_name = serializers.CharField(max_length=120, trim_whitespace=True)
 
     def validate_email(self, value: str) -> str:
-        # No existence check here: duplicate detection happens in the
-        # service layer and surfaces as a uniform, non-enumerable error.
         return value.lower()
 
     def validate_password(self, value: str) -> str:

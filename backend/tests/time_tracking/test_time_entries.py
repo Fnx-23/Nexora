@@ -174,9 +174,7 @@ class TestDurationCalculations:
         assert resp.status_code == 201
         assert resp.data["duration"] is None
 
-    def test_duration_recalculated_when_times_edited(
-        self, tenant, auth_client, project_factory
-    ):
+    def test_duration_recalculated_when_times_edited(self, tenant, auth_client, project_factory):
         """Regression: editing start/end must recompute the stored duration.
 
         Create 01:00 -> 02:00 (1h), then update end to 04:00 and expect 3h in
@@ -223,9 +221,7 @@ class TestDurationCalculations:
         db_entry.refresh_from_db()
         assert db_entry.duration == timedelta(hours=3)
 
-    def test_duration_recalculated_when_start_edited(
-        self, tenant, auth_client, project_factory
-    ):
+    def test_duration_recalculated_when_start_edited(self, tenant, auth_client, project_factory):
         """Regression: editing start_time also recomputes duration."""
         from datetime import timedelta
 

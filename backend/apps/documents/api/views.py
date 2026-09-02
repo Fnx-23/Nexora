@@ -77,7 +77,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # --- Security: file size ---
         if uploaded_file.size > MAX_FILE_SIZE_BYTES:
             max_mb = MAX_FILE_SIZE_BYTES // (1024 * 1024)
             return Response(
@@ -85,7 +84,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # --- Security: MIME type ---
         content_type = uploaded_file.content_type or ""
         if content_type not in ALLOWED_MIME_TYPES:
             return Response(
@@ -93,7 +91,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # --- Security: extension ---
         _, ext = os.path.splitext(uploaded_file.name)
         if ext.lower() not in ALLOWED_EXTENSIONS:
             return Response(
@@ -101,7 +98,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # --- Security: sanitize filename ---
         safe_name = _sanitize_filename(uploaded_file.name)
 
         entity_kind = request.data.get("entity_kind", EntityKind.COMPANY)
@@ -112,6 +108,29 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 {"detail": f"Invalid entity_kind: '{entity_kind}'."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+        if entity_kind in (EntityKind.PROJECT, EntityKind.CUSTOMER, EntityKind.TASK):
+            from apps.customers.models import Customer
+            from apps.projects.models import Project
+            from apps.tasks.models import Task
+
+            if not entity_id:
+                return Response(
+                    {"detail": "entity_id is required for this entity_kind."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            model = {
+                EntityKind.PROJECT: Project,
+                EntityKind.CUSTOMER: Customer,
+                EntityKind.TASK: Task,
+            }[entity_kind]
+            if not model.objects.filter(company=request.company, id=entity_id).exists():
+                return Response(
+                    {"detail": "Linked entity does not exist in this company."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        elif entity_kind == EntityKind.COMPANY:
+            entity_id = None
 
         doc = Document(
             company=request.company,

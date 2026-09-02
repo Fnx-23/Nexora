@@ -26,12 +26,15 @@ import {
   createProject,
   updateProject,
   archiveProject,
+  restoreProject,
   type ProjectListParams,
   type CreateProjectPayload,
 } from "@/features/projects/api"
 import { fetchCustomers } from "@/features/customers/api"
 import { fetchMembers } from "@/features/team/api"
 import { queryKeys } from "@/utils/queryKeys"
+import { cn } from "@/utils/cn"
+import { PROJECT_HEALTH_LABELS } from "@/types/project"
 
 const PAGE_SIZE = 25
 
@@ -81,6 +84,51 @@ function DeadlineCell({ deadline }: { deadline: string | null }) {
   )
 }
 
+const HEALTH_CLASSES: Record<string, string> = {
+  NOT_STARTED: "bg-slate-100 text-slate-600",
+  ON_TRACK: "bg-emerald-50 text-emerald-700",
+  AT_RISK: "bg-amber-50 text-amber-700",
+  OVERDUE: "bg-red-50 text-red-700",
+  COMPLETED: "bg-sky-50 text-sky-700",
+}
+
+function HealthBadge({ health }: { health?: string }) {
+  if (!health) return <span className="text-slate-400">—</span>
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
+        HEALTH_CLASSES[health] ?? "bg-slate-100 text-slate-600",
+      )}
+    >
+      {PROJECT_HEALTH_LABELS[health as keyof typeof PROJECT_HEALTH_LABELS] ?? health.replace("_", " ")}
+    </span>
+  )
+}
+
+function ProgressCell({ progress, health }: { progress?: number; health?: string }) {
+  const value = progress ?? 0
+  const color =
+    health === "OVERDUE"
+      ? "bg-red-500"
+      : health === "AT_RISK"
+        ? "bg-amber-500"
+        : health === "COMPLETED"
+          ? "bg-emerald-500"
+          : "bg-brand-600"
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className={cn("h-full rounded-full", color)}
+          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
+        />
+      </div>
+      <span className="text-sm tabular-nums text-slate-600">{value}%</span>
+    </div>
+  )
+}
+
 export function ProjectsPage() {
   const { activeCompany, role } = useAuth()
   const navigate = useNavigate()
@@ -93,6 +141,7 @@ export function ProjectsPage() {
   const [priorityFilter, setPriorityFilter] = useState("")
   const [customerFilter, setCustomerFilter] = useState("")
   const [page, setPage] = useState(1)
+  const [showArchived, setShowArchived] = useState(false)
 
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -108,10 +157,11 @@ export function ProjectsPage() {
     const params: ProjectListParams = { page, page_size: PAGE_SIZE }
     if (debouncedSearch) params.search = debouncedSearch
     if (statusFilter) params.status = statusFilter
+    else if (showArchived) params.status = "ARCHIVED"
     if (priorityFilter) params.priority = priorityFilter
     if (customerFilter) params.customer = customerFilter
     return params
-  }, [page, debouncedSearch, statusFilter, priorityFilter, customerFilter])
+  }, [page, debouncedSearch, statusFilter, priorityFilter, customerFilter, showArchived])
 
   const projectsQuery = useQuery({
     queryKey: [...queryKeys.projects(companyId), queryParams],
@@ -190,6 +240,11 @@ export function ProjectsPage() {
   const archiveMutation = useMutation({
     mutationFn: archiveProject,
     onSuccess: () => { invalidate(); setArchiveTarget(null) },
+  })
+
+  const restoreMutation = useMutation({
+    mutationFn: (id: string) => restoreProject(id, "IN_PROGRESS"),
+    onSuccess: () => { invalidate() },
   })
 
   function handleMutationError(err: Error & { response?: { data?: Record<string, unknown> } }) {
@@ -311,6 +366,21 @@ export function ProjectsPage() {
                 <option key={c.id} value={c.id}>{c.company_name || c.name}</option>
               ))}
             </Select>
+            <button
+              type="button"
+              onClick={() => {
+                setShowArchived((v) => !v)
+                setPage(1)
+              }}
+              className={cn(
+                "inline-flex h-10 items-center rounded-lg border px-3.5 text-sm font-medium transition-colors",
+                showArchived
+                  ? "border-brand-500 bg-brand-50 text-brand-700"
+                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50",
+              )}
+            >
+              Archived
+            </button>
             {data.count > 0 && (
               <span className="ml-auto text-sm text-slate-500">
                 {data.count} project{data.count !== 1 ? "s" : ""}
@@ -343,6 +413,9 @@ export function ProjectsPage() {
                       <TH className="hidden md:table-cell">Manager</TH>
                       <TH>Status</TH>
                       <TH className="hidden sm:table-cell">Priority</TH>
+                      <TH className="hidden lg:table-cell">Health</TH>
+                      <TH className="hidden md:table-cell">Progress</TH>
+                      <TH className="hidden xl:table-cell">Members</TH>
                       <TH className="hidden lg:table-cell">Deadline</TH>
                       <TH><span className="sr-only">Actions</span></TH>
                     </TR>
@@ -370,6 +443,15 @@ export function ProjectsPage() {
                           <StatusBadge value={project.priority} />
                         </TD>
                         <TD className="hidden lg:table-cell">
+                          <HealthBadge health={project.health} />
+                        </TD>
+                        <TD className="hidden md:table-cell">
+                          <ProgressCell progress={project.progress} health={project.health} />
+                        </TD>
+                        <TD className="hidden xl:table-cell text-slate-600">
+                          {project.member_count ?? 0} member{project.member_count !== 1 ? "s" : ""}
+                        </TD>
+                        <TD className="hidden lg:table-cell">
                           <DeadlineCell deadline={project.deadline} />
                         </TD>
                         <TD>
@@ -390,6 +472,16 @@ export function ProjectsPage() {
                                 }
                               >
                                 Archive
+                              </Button>
+                            )}
+                            {canDelete && project.status === "ARCHIVED" && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                isLoading={restoreMutation.isPending}
+                                onClick={() => restoreMutation.mutate(project.id)}
+                              >
+                                Restore
                               </Button>
                             )}
                           </div>

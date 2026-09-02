@@ -32,10 +32,29 @@ class ActivityAction(models.TextChoices):
     PROJECT_CREATED = "project.created", "Project created"
     PROJECT_UPDATED = "project.updated", "Project updated"
     PROJECT_STATUS_CHANGED = "project.status_changed", "Project status changed"
+    PROJECT_MEMBER_ADDED = "project.member_added", "Member added to project"
+    PROJECT_MEMBER_REMOVED = "project.member_removed", "Member removed from project"
     TASK_CREATED = "task.created", "Task created"
     TASK_ASSIGNED = "task.assigned", "Task assigned"
     TASK_STATUS_CHANGED = "task.status_changed", "Task status changed"
+    TASK_PRIORITY_CHANGED = "task.priority_changed", "Task priority changed"
+    TASK_DUE_DATE_CHANGED = "task.due_date_changed", "Task due date changed"
+    TASK_COMMENT_ADDED = "task.comment_added", "Comment added to task"
+    TASK_COMMENT_DELETED = "task.comment_deleted", "Comment removed from task"
+    TASK_ATTACHMENT_ADDED = "task.attachment_added", "Attachment added to task"
     TEAM_ROLE_CHANGED = "team.role_changed", "Team role changed"
+    PASSWORD_CHANGED = "password.changed", "Password changed"
+    PASSWORD_RESET = "password.reset", "Password reset"
+    EMAIL_VERIFIED = "email.verified", "Email verified"
+    SESSION_REVOKED = "session.revoked", "Session revoked"
+    SESSIONS_REVOKED_OTHERS = "sessions.revoked_others", "All other sessions revoked"
+    PROFILE_UPDATED = "profile.updated", "Profile updated"
+    INVITATION_SENT = "invitation.sent", "Invitation sent"
+    INVITATION_ACCEPTED = "invitation.accepted", "Invitation accepted"
+    INVITATION_REVOKED = "invitation.revoked", "Invitation revoked"
+    TEAM_MEMBER_DEACTIVATED = "team.member_deactivated", "Member deactivated"
+    TEAM_MEMBER_REACTIVATED = "team.member_reactivated", "Member reactivated"
+    TEAM_MEMBER_REMOVED = "team.member_removed", "Member removed"
 
 
 class EntityType(models.TextChoices):
@@ -45,6 +64,7 @@ class EntityType(models.TextChoices):
     PROJECT = "project", "Project"
     TASK = "task", "Task"
     MEMBERSHIP = "membership", "Membership"
+    INVITATION = "invitation", "Invitation"
 
 
 class Activity(UUIDModel):
@@ -94,11 +114,8 @@ class Activity(UUIDModel):
         verbose_name_plural = "activities"
         ordering = ["-timestamp"]
         indexes = [
-            # Primary access pattern: a company's reverse-chronological feed.
             models.Index(fields=["company", "-timestamp"]),
-            # Per-entity history ("what happened to this project?").
             models.Index(fields=["company", "entity_type", "entity_id"]),
-            # Filtered feeds by action type and by actor.
             models.Index(fields=["company", "action"]),
             models.Index(fields=["company", "actor"]),
         ]

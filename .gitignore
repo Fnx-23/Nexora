@@ -6,9 +6,10 @@ __pycache__/
 venv/
 pip-wheel-metadata/
 
-# Django
+# Django & Database
 backend/staticfiles/
 backend/media/
+pgdata/
 *.sqlite3
 db.sqlite3
 
@@ -33,9 +34,10 @@ frontend/dist/
 .env.*
 !.env.example
 
-# IDEs
+# IDEs & local agents
 .idea/
 .vscode/
+.claude/
 *.swp
 *.swo
 .DS_Store
@@ -43,6 +45,12 @@ Thumbs.db
 
 # Docker
 docker-compose.override.yml
+
+# Large media files (videos, screen recordings)
+*.mp4
+*.mov
+*.webm
+*.avi
 
 # OS noise
 *.log

@@ -1,10 +1,5 @@
 import type { Activity, ActivityEntityType } from "@/types/activity"
 
-/* -------------------------------------------------------------------------- */
-/* Time                                                                       */
-/* -------------------------------------------------------------------------- */
-
-/** Compact relative-time label, e.g. "Just now", "3m ago", "2h ago", "5d ago". */
 export function timeAgo(isoDate: string): string {
   const then = new Date(isoDate).getTime()
   if (Number.isNaN(then)) return ""
@@ -19,7 +14,6 @@ export function timeAgo(isoDate: string): string {
   return `${diffMonth}mo ago`
 }
 
-/** Absolute, human timestamp for tooltips and full display. */
 export function formatTimestamp(isoDate: string): string {
   const date = new Date(isoDate)
   if (Number.isNaN(date.getTime())) return ""
@@ -32,15 +26,9 @@ export function formatTimestamp(isoDate: string): string {
   })
 }
 
-/* -------------------------------------------------------------------------- */
-/* Entity presentation                                                        */
-/* -------------------------------------------------------------------------- */
-
 export interface EntityMeta {
   label: string
-  /** Single-character glyph for the row avatar. */
   initial: string
-  /** Tailwind color classes for the row avatar. */
   className: string
 }
 
@@ -57,45 +45,29 @@ const FALLBACK_ENTITY_META: EntityMeta = {
   className: "bg-slate-100 text-slate-600",
 }
 
-/** Presentation metadata for an entity type, with a safe fallback for unknown types. */
 export function entityMeta(entityType: string): EntityMeta {
   return ENTITY_META[entityType as ActivityEntityType] ?? FALLBACK_ENTITY_META
 }
-
-/* -------------------------------------------------------------------------- */
-/* Activity description                                                       */
-/* -------------------------------------------------------------------------- */
 
 function asNonEmptyString(value: unknown): string | null {
   return typeof value === "string" && value.length > 0 ? value : null
 }
 
-/** "IN_PROGRESS" -> "In progress", "TODO" -> "Todo", "ON_HOLD" -> "On hold". */
 function humanizeToken(value: unknown): string | null {
   const raw = asNonEmptyString(value)
   if (!raw) return null
   return raw.charAt(0).toUpperCase() + raw.slice(1).toLowerCase().replace(/_/g, " ")
 }
 
-/** "assignee_id" -> "assignee", "start_date" -> "start date". */
 function humanizeFieldName(field: string): string {
   return field.replace(/_id$/, "").replace(/_/g, " ")
 }
 
-/**
- * The primary subject of an activity — the affected object's name/title from
- * (sanitized) metadata, falling back to the human action label.
- */
 export function activitySubject(activity: Activity): string {
   const meta = activity.metadata ?? {}
   return asNonEmptyString(meta.name) ?? asNonEmptyString(meta.title) ?? activity.action_display
 }
 
-/**
- * A short, human detail line derived from the sanitized metadata (a status
- * transition, the fields that changed, ...), or `null` when nothing to add.
- * Robust to unknown/missing metadata shapes.
- */
 export function activityDetail(activity: Activity): string | null {
   const meta = activity.metadata ?? {}
 
@@ -127,14 +99,20 @@ export function activityDetail(activity: Activity): string | null {
       if (!to) return "Unassigned"
       return from ? "Reassigned" : "Assigned"
     }
+    case "task.due_date_changed": {
+      const from = asNonEmptyString(meta.old_due_date)
+      const to = asNonEmptyString(meta.new_due_date)
+      if (from && to) return `Due date ${from || "unset"} → ${to}`
+      return to ? `Due ${to}` : null
+    }
+    case "task.attachment_added": {
+      const name = asNonEmptyString(meta.original_filename)
+      return name ? name : null
+    }
     default:
       return null
   }
 }
-
-/* -------------------------------------------------------------------------- */
-/* Filter option lists (for the Activity page)                                */
-/* -------------------------------------------------------------------------- */
 
 export const ENTITY_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "", label: "All types" },
@@ -152,8 +130,21 @@ export const ACTION_OPTIONS: { value: string; label: string }[] = [
   { value: "project.created", label: "Project created" },
   { value: "project.updated", label: "Project updated" },
   { value: "project.status_changed", label: "Project status changed" },
+  { value: "project.member_added", label: "Member added to project" },
+  { value: "project.member_removed", label: "Member removed from project" },
   { value: "task.created", label: "Task created" },
   { value: "task.assigned", label: "Task assigned" },
   { value: "task.status_changed", label: "Task status changed" },
+  { value: "task.priority_changed", label: "Task priority changed" },
+  { value: "task.due_date_changed", label: "Task due date changed" },
+  { value: "task.comment_added", label: "Comment added to task" },
+  { value: "task.comment_deleted", label: "Comment removed from task" },
+  { value: "task.attachment_added", label: "Attachment added to task" },
   { value: "team.role_changed", label: "Team role changed" },
+  { value: "password.changed", label: "Password changed" },
+  { value: "password.reset", label: "Password reset" },
+  { value: "email.verified", label: "Email verified" },
+  { value: "session.revoked", label: "Session revoked" },
+  { value: "sessions.revoked_others", label: "Sessions revoked" },
+  { value: "profile.updated", label: "Profile updated" },
 ]

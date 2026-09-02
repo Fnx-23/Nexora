@@ -11,6 +11,8 @@ from pathlib import Path
 
 import environ
 
+from celery.schedules import crontab
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 env = environ.Env(
@@ -39,6 +41,8 @@ env = environ.Env(
     LOG_LEVEL=(str, "INFO"),
     STATIC_ROOT=(str, str(BASE_DIR / "staticfiles")),
     MEDIA_ROOT=(str, str(BASE_DIR / "media")),
+    SITE_URL=(str, "http://localhost:5173"),
+    DEFAULT_FROM_EMAIL=(str, "Nexora <noreply@nexora.local>"),
 )
 
 env_file = BASE_DIR / ".env"
@@ -80,6 +84,8 @@ LOCAL_APPS = [
     "apps.time_tracking",
     "apps.documents",
     "apps.notifications",
+    "apps.search",
+    "apps.reports",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -180,6 +186,15 @@ CELERY_RESULT_BACKEND = CELERY_BROKER_URL
 CELERY_TASK_ALWAYS_EAGER = env("CELERY_TASK_ALWAYS_EAGER")
 CELERY_TASK_EAGER_PROPAGATES = True
 
+# Scheduled notification runs (deduplicated per recipient/entity/category for
+# 24h, so a 6-hourly cadence is safe and outage-tolerant).
+CELERY_BEAT_SCHEDULE = {
+    "notify-deadline-approaching": {
+        "task": "apps.notifications.tasks.check_deadline_approaching",
+        "schedule": crontab(minute=0, hour="*/6"),
+    },
+}
+
 # DRF
 
 # Number of reverse proxies in front of the API that append to
@@ -258,6 +273,9 @@ STATIC_ROOT = Path(env("STATIC_ROOT"))
 MEDIA_URL = "/media/"
 MEDIA_ROOT = Path(env("MEDIA_ROOT"))
 
+SITE_URL = env("SITE_URL")
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Logging
@@ -284,5 +302,7 @@ LOGGING = {
     "loggers": {
         "django": {"level": "INFO"},
         "django.server": {"level": "WARNING"},
+        "apps.accounts": {"level": "INFO", "handlers": ["console"], "propagate": False},
+        "apps.activities": {"level": "INFO", "handlers": ["console"], "propagate": False},
     },
 }

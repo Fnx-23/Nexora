@@ -1,6 +1,4 @@
-/** Types for the tenant-scoped audit log, mirroring the backend ActivitySerializer. */
 
-/** The catalogue of audited business events (matches `ActivityAction` on the server). */
 export type ActivityAction =
   | "customer.created"
   | "customer.updated"
@@ -8,29 +6,28 @@ export type ActivityAction =
   | "project.created"
   | "project.updated"
   | "project.status_changed"
+  | "project.member_added"
+  | "project.member_removed"
   | "task.created"
   | "task.assigned"
   | "task.status_changed"
+  | "task.priority_changed"
+  | "task.due_date_changed"
+  | "task.comment_added"
+  | "task.comment_deleted"
+  | "task.attachment_added"
   | "team.role_changed"
 
-/** The kind of object an activity refers to. */
 export type ActivityEntityType = "customer" | "project" | "task" | "membership"
 
-/** A single append-only audit-log entry. */
 export interface Activity {
   id: string
   action: ActivityAction
-  /** Human-readable label for `action`, e.g. "Customer created". */
   action_display: string
   entity_type: ActivityEntityType
-  /** UUID of the affected object; null when it was not recorded. */
   entity_id: string | null
-  /** UUID of the acting user; null for system actions. */
   actor: string | null
-  /** Full name or email of the actor; null for system actions. */
   actor_name: string | null
-  /** Non-sensitive contextual detail (sanitized server-side). Shape varies by action. */
   metadata: Record<string, unknown>
-  /** ISO-8601 timestamp of when the event occurred. */
   timestamp: string
 }

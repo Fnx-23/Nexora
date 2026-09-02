@@ -42,11 +42,9 @@ class TimeEntryViewSet(TenantScopedModelViewSet):
         user = self.request.user
         company_role = getattr(self.request, "company_role", None)
 
-        # Employees can only see their own entries
         if company_role == RoleChoices.EMPLOYEE:
             qs = qs.filter(user=user)
 
-        # Date range filtering
         date_from = self.request.query_params.get("date_from")
         date_to = self.request.query_params.get("date_to")
         if date_from:
@@ -73,7 +71,6 @@ class TimeEntryViewSet(TenantScopedModelViewSet):
         total_seconds = duration_agg["total"].total_seconds() if duration_agg["total"] else 0
         total_minutes = round(total_seconds / 60, 2)
 
-        # By project
         by_project = (
             qs.values("project__name")
             .annotate(total=Coalesce(Sum("duration"), timedelta(0)))
@@ -89,7 +86,6 @@ class TimeEntryViewSet(TenantScopedModelViewSet):
             for item in by_project
         ]
 
-        # By date
         by_date = (
             qs.values("date")
             .annotate(total=Coalesce(Sum("duration"), timedelta(0)))

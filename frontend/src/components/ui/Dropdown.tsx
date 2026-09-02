@@ -18,11 +18,17 @@ export interface DropdownProps {
 export function Dropdown({ trigger, children }: DropdownProps) {
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
   const id = useId()
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        (!menuRef.current || !menuRef.current.contains(target))
+      ) {
         setOpen(false)
       }
     }
@@ -59,9 +65,11 @@ export function Dropdown({ trigger, children }: DropdownProps) {
       {open &&
         createPortal(
           <div
+            ref={menuRef}
             id={id}
             role="menu"
             aria-expanded="true"
+            onClick={() => setOpen(false)}
             className={cn(
               "absolute right-0 z-50 mt-2 min-w-[180px] rounded-lg border border-slate-200 bg-white py-1 shadow-lg",
             )}

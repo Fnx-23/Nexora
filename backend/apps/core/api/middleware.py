@@ -55,7 +55,7 @@ class RequestActorMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        reset_actor()  # start clean regardless of prior state on this thread
+        reset_actor()
         try:
             return self.get_response(request)
         finally:

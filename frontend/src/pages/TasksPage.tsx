@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import { PageHeader } from "@/components/layout/PageHeader"
@@ -10,9 +11,9 @@ import { LoadingState } from "@/components/ui/LoadingState"
 import { useAuth } from "@/hooks/useAuth"
 import { KanbanBoard } from "@/features/tasks/components/KanbanBoard"
 import { CreateTaskModal } from "@/features/tasks/components/CreateTaskModal"
-import { EditTaskModal } from "@/features/tasks/components/EditTaskModal"
 import {
   fetchAllTasks,
+  fetchLabels,
   changeTaskStatus,
   type TaskListParams,
 } from "@/features/tasks/api"
@@ -30,25 +31,28 @@ const PRIORITY_OPTIONS = [
 ]
 
 export function TasksPage() {
-  const { activeCompany, role } = useAuth()
+  const { activeCompany } = useAuth()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
   const companyId = activeCompany?.id ?? null
 
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [priorityFilter, setPriorityFilter] = useState("")
+  const [assigneeFilter, setAssigneeFilter] = useState("")
+  const [labelFilter, setLabelFilter] = useState("")
 
   const [createOpen, setCreateOpen] = useState(false)
-  const [editTask, setEditTask] = useState<Task | null>(null)
-
-  const canDelete = role === "ADMIN" || role === "MANAGER"
+  const [createStatus, setCreateStatus] = useState<TaskStatus>("TODO")
 
   const queryParams = useMemo<TaskListParams>(() => {
     const params: TaskListParams = { page_size: 200 }
     if (debouncedSearch) params.search = debouncedSearch
     if (priorityFilter) params.priority = priorityFilter
+    if (assigneeFilter) params.assignee = assigneeFilter
+    if (labelFilter) params.label = labelFilter
     return params
-  }, [debouncedSearch, priorityFilter])
+  }, [debouncedSearch, priorityFilter, assigneeFilter, labelFilter])
 
   const tasksQuery = useQuery({
     queryKey: [...queryKeys.tasks(companyId), queryParams],
@@ -65,6 +69,12 @@ export function TasksPage() {
   const membersQuery = useQuery({
     queryKey: queryKeys.members(companyId),
     queryFn: fetchMembers,
+    enabled: companyId !== null,
+  })
+
+  const labelsQuery = useQuery({
+    queryKey: queryKeys.labels(companyId),
+    queryFn: () => fetchLabels({ page_size: 100 }),
     enabled: companyId !== null,
   })
 
@@ -108,8 +118,16 @@ export function TasksPage() {
     [queryClient, companyId, queryParams, statusMutation],
   )
 
-  const handleTaskClick = useCallback((task: Task) => {
-    setEditTask(task)
+  const handleTaskClick = useCallback(
+    (task: Task) => {
+      navigate(`/tasks/${task.id}`)
+    },
+    [navigate],
+  )
+
+  const handleQuickCreate = useCallback((status: TaskStatus) => {
+    setCreateStatus(status)
+    setCreateOpen(true)
   }, [])
 
   const searchTimeout = useMemo(() => {
@@ -164,6 +182,32 @@ export function TasksPage() {
                 </option>
               ))}
             </Select>
+            <Select
+              aria-label="Filter by assignee"
+              value={assigneeFilter}
+              onChange={(e) => setAssigneeFilter(e.target.value)}
+              className="sm:max-w-[160px]"
+            >
+              <option value="">All assignees</option>
+              {membersQuery.data?.map((m) => (
+                <option key={m.id} value={m.id}>
+                  {m.full_name || m.email}
+                </option>
+              ))}
+            </Select>
+            <Select
+              aria-label="Filter by label"
+              value={labelFilter}
+              onChange={(e) => setLabelFilter(e.target.value)}
+              className="sm:max-w-[160px]"
+            >
+              <option value="">All labels</option>
+              {labelsQuery.data?.results.map((label) => (
+                <option key={label.id} value={label.id}>
+                  {label.name}
+                </option>
+              ))}
+            </Select>
             {tasks.length > 0 && (
               <span className="ml-auto text-sm text-slate-500">
                 {tasks.length} task{tasks.length !== 1 ? "s" : ""}
@@ -174,21 +218,25 @@ export function TasksPage() {
           {tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-200 py-16">
               <p className="text-sm font-medium text-slate-500">
-                {debouncedSearch || priorityFilter
+                {debouncedSearch || priorityFilter || assigneeFilter || labelFilter
                   ? "No tasks match your filters."
                   : "No tasks yet. Create your first task to get started."}
               </p>
-              {!debouncedSearch && !priorityFilter && (
-                <Button className="mt-4" onClick={() => setCreateOpen(true)}>
-                  New task
-                </Button>
-              )}
+              {!debouncedSearch &&
+                !priorityFilter &&
+                !assigneeFilter &&
+                !labelFilter && (
+                  <Button className="mt-4" onClick={() => setCreateOpen(true)}>
+                    New task
+                  </Button>
+                )}
             </div>
           ) : (
             <KanbanBoard
               tasks={tasks}
               onStatusChange={handleStatusChange}
               onTaskClick={handleTaskClick}
+              onQuickCreate={handleQuickCreate}
             />
           )}
         </div>
@@ -196,6 +244,7 @@ export function TasksPage() {
 
       <CreateTaskModal
         open={createOpen}
+        defaultStatus={createStatus}
         onClose={() => setCreateOpen(false)}
         onCreated={() => {
           setCreateOpen(false)
@@ -203,23 +252,7 @@ export function TasksPage() {
         }}
         projects={projectsQuery.data?.results ?? []}
         members={membersQuery.data ?? []}
-      />
-
-      <EditTaskModal
-        open={editTask !== null}
-        task={editTask}
-        onClose={() => setEditTask(null)}
-        onUpdated={() => {
-          setEditTask(null)
-          invalidate()
-        }}
-        onDeleted={() => {
-          setEditTask(null)
-          invalidate()
-        }}
-        projects={projectsQuery.data?.results ?? []}
-        members={membersQuery.data ?? []}
-        canDelete={canDelete}
+        labels={labelsQuery.data?.results ?? []}
       />
     </div>
   )

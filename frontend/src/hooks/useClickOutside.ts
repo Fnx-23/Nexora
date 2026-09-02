@@ -1,6 +1,5 @@
 import { useEffect, type RefObject } from "react"
 
-/** Invoke `handler` when a pointer interaction lands outside `ref`. */
 export function useClickOutside<T extends HTMLElement>(
   ref: RefObject<T | null>,
   handler: () => void,

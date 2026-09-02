@@ -1,13 +1,16 @@
 """Viewset for listing, reading, and managing notifications."""
 
-from rest_framework import decorators, viewsets
+from rest_framework import decorators, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.companies.models import RoleChoices
 from apps.core.api.permissions import IsCompanyMember
-from apps.notifications.api.serializers import NotificationSerializer
-from apps.notifications.models import Notification
+from apps.notifications.api.serializers import (
+    NotificationPreferenceSerializer,
+    NotificationSerializer,
+)
+from apps.notifications.models import Notification, NotificationPreference
 
 
 class NotificationViewSet(viewsets.ModelViewSet):
@@ -53,3 +56,27 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def mark_all_read(self, request):
         updated = self.get_queryset().filter(is_read=False).update(is_read=True)
         return Response({"updated": updated})
+
+    @decorators.action(detail=False, methods=["get", "patch"], url_path="preferences")
+    def preferences(self, request):
+        company = getattr(request, "company", None)
+        if company is None:
+            return Response(
+                {"detail": "Company context is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        preference, created = NotificationPreference.objects.get_or_create(
+            company=company,
+            user=request.user,
+        )
+
+        if request.method == "PATCH":
+            serializer = NotificationPreferenceSerializer(
+                preference, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(NotificationPreferenceSerializer(preference).data)

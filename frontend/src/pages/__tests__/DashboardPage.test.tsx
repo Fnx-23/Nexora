@@ -154,12 +154,12 @@ describe("DashboardPage", () => {
     vi.mocked(dashboardApi.fetchDashboard).mockResolvedValue(MOCK_DASHBOARD)
     renderPage()
     await waitFor(() => {
-      expect(screen.getByText("3")).toBeInTheDocument() // active projects
-      expect(screen.getByText("7 total")).toBeInTheDocument() // hint
-      expect(screen.getByText("15")).toBeInTheDocument() // open tasks
+      expect(screen.getByText("3")).toBeInTheDocument()
+      expect(screen.getByText("7 total")).toBeInTheDocument()
+      expect(screen.getByText("15")).toBeInTheDocument()
       expect(screen.getByText("2 overdue")).toBeInTheDocument()
-      expect(screen.getByText("12")).toBeInTheDocument() // customers
-      expect(screen.getByText("5")).toBeInTheDocument() // team members
+      expect(screen.getByText("12")).toBeInTheDocument()
+      expect(screen.getByText("5")).toBeInTheDocument()
     })
   })
 
@@ -216,10 +216,9 @@ describe("DashboardPage", () => {
   })
 
   it("shows skeleton while loading", () => {
-    vi.mocked(dashboardApi.fetchDashboard).mockReturnValue(new Promise(() => {})) // never resolves
+    vi.mocked(dashboardApi.fetchDashboard).mockReturnValue(new Promise(() => {}))
     renderPage()
     expect(screen.getByText(/Welcome back/)).toBeInTheDocument()
-    // Skeletons should be present
     const skeletons = document.querySelectorAll('[aria-hidden="true"]')
     expect(skeletons.length).toBeGreaterThan(0)
   })
@@ -263,9 +262,6 @@ describe("DashboardPage", () => {
   })
 
   it("recent cards allow shrinking to avoid horizontal overflow", async () => {
-    // BUG-4 regression: grid items default to min-width:auto, so the recent
-    // item cards could not shrink below their content's min-content width,
-    // pushing the page 2px past the viewport at 390px. `min-w-0` lets them fit.
     vi.mocked(dashboardApi.fetchDashboard).mockResolvedValue(MOCK_DASHBOARD)
     renderPage()
     await waitFor(() => expect(screen.getByText("Recent Projects")).toBeInTheDocument())

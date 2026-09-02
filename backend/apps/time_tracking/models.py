@@ -76,5 +76,4 @@ class TimeEntry(TenantedModel):
             dt_end = datetime.combine(self.date, self.end_time)
             self.duration = dt_end - dt_start
         else:
-            # Running entry (no end time) has no duration.
             self.duration = None

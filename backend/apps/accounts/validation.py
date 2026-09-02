@@ -26,7 +26,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from PIL import Image, UnidentifiedImageError
 
-# Canonical Pillow format -> storage extension.
 ALLOWED_AVATAR_FORMATS: dict[str, str] = {
     "JPEG": ".jpg",
     "PNG": ".png",
@@ -54,8 +53,6 @@ def validate_avatar_image(uploaded):
         raise ValidationError(_("Avatar must be a JPEG, PNG or WebP image."))
 
     try:
-        # `Image.open` sniffs the header; `verify()` rejects truncated or
-        # crafted payloads. `format` reflects detected magic bytes only.
         image_format: str | None
         with Image.open(uploaded) as image:
             image_format = image.format
@@ -66,7 +63,6 @@ def validate_avatar_image(uploaded):
     if image_format not in ALLOWED_AVATAR_FORMATS:
         raise ValidationError(_("Only JPEG, PNG and WebP images are allowed."))
 
-    # Content must agree with the declared extension (.jpg/.jpeg interchangeable).
     acceptable = {ALLOWED_AVATAR_FORMATS[image_format]}
     if image_format == "JPEG":
         acceptable.add(".jpeg")

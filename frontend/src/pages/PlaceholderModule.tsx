@@ -10,10 +10,6 @@ interface PlaceholderModuleProps {
   capabilities: readonly string[]
 }
 
-/**
- * Shared scaffold for modules that ship next. Renders the planned scope so
- * stakeholders can review direction before implementation starts.
- */
 export function PlaceholderModule({ icon, title, description, capabilities }: PlaceholderModuleProps) {
   return (
     <div>

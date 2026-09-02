@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import { render, screen } from "@testing-library/react"
 import userEvent from "@testing-library/user-event"
 
@@ -33,11 +33,23 @@ describe("Dropdown", () => {
     expect(screen.getAllByRole("menuitem")).toHaveLength(2)
   })
 
-  it("closes menu after clicking an item", async () => {
+  it("closes menu after clicking an item and triggers onClick", async () => {
     const user = userEvent.setup()
-    setup()
+    const handleEdit = vi.fn()
+    render(
+      <Dropdown
+        trigger={({ triggerProps }) => (
+          <button type="button" {...triggerProps}>
+            Actions
+          </button>
+        )}
+      >
+        <DropdownItem onClick={handleEdit}>Edit</DropdownItem>
+      </Dropdown>,
+    )
     await user.click(screen.getByRole("button", { name: "Actions" }))
     await user.click(screen.getByText("Edit"))
+    expect(handleEdit).toHaveBeenCalledTimes(1)
     expect(screen.queryByRole("menu")).not.toBeInTheDocument()
   })
 

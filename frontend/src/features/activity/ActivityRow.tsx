@@ -3,8 +3,6 @@ import { cn } from "@/utils/cn"
 
 import { activityDetail, activitySubject, entityMeta, formatTimestamp, timeAgo } from "./format"
 
-/** A single audit-log entry rendered as a list row. Used by the dashboard card
- * and the full Activity page so both stay visually consistent. */
 export function ActivityRow({ activity }: { activity: Activity }) {
   const meta = entityMeta(activity.entity_type)
   const subject = activitySubject(activity)

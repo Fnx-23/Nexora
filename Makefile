@@ -1,3 +1,5 @@
+export PATH := $(CURDIR)/.venv/bin:$(PATH)
+
 .PHONY: help up up-dev down build logs ps restart \
 	migrate makemigrations superuser shell \
 	test lint format check ci \
@@ -48,7 +50,7 @@ shell: ## Open a Django shell in the backend container
 # --- Local development (without Docker) --------------------------------------
 
 dev-backend: ## Run the Django dev server locally
-	cd backend && ../../.venv/bin/python manage.py runserver || python3 manage.py runserver
+	cd backend && ../.venv/bin/python manage.py runserver || python manage.py runserver
 
 dev-frontend: ## Run the Vite dev server locally
 	cd frontend && npm run dev

@@ -13,6 +13,8 @@ export interface AuthContextValue {
     last_name: string
     avatar: string | null
     full_name: string
+    is_email_verified?: boolean
+    created_at?: string
   } | null
   activeCompany: CompanyRef | null
   role: Role | null

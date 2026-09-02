@@ -23,7 +23,6 @@ async function requestNewAccessToken(): Promise<string> {
   if (!refresh) {
     throw new Error("No refresh token available.")
   }
-  // Raw axios call: no interceptors, no retry loop.
   const response = await axios.post<{ access: string; refresh?: string }>(
     `${baseURL}/auth/token/refresh/`,
     { refresh },

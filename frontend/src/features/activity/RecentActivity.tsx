@@ -9,20 +9,11 @@ import { ActivityRow } from "./ActivityRow"
 import { activityKeys, fetchActivities } from "./api"
 
 export interface RecentActivityProps {
-  /** How many recent events to show. */
   limit?: number
-  /** Render a "View all" link to the full Activity page. */
   showViewAll?: boolean
   className?: string
 }
 
-/**
- * Self-contained "Recent Activity" card backed by the real audit log.
- *
- * It fetches its own data (scoped to the active company) so it can be dropped
- * anywhere — e.g. straight into the dashboard grid — with a single line:
- * `<RecentActivity limit={5} />`.
- */
 export function RecentActivity({ limit = 6, showViewAll = true, className }: RecentActivityProps) {
   const { activeCompany } = useAuth()
   const companyId = activeCompany?.id ?? null

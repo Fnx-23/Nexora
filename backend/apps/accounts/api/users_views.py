@@ -16,10 +16,23 @@ class MemberSerializer(serializers.ModelSerializer):
 
     full_name = serializers.CharField(source="get_full_name", read_only=True)
     role = serializers.CharField(read_only=True)
+    membership_id = serializers.UUIDField(read_only=True)
+    membership_active = serializers.BooleanField(read_only=True)
+    joined_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "email", "first_name", "last_name", "full_name", "role"]
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "full_name",
+            "role",
+            "membership_id",
+            "membership_active",
+            "joined_at",
+        ]
 
 
 class UsersViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -31,21 +44,28 @@ class UsersViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Ge
     ordering_fields = ["email", "date_joined"]
 
     def get_queryset(self) -> QuerySet[User]:
-        if getattr(self, "swagger_fake_view", False):  # schema generation
+        if getattr(self, "swagger_fake_view", False):
             return User.objects.none()
 
-        role_within_company = Subquery(
-            Membership.objects.filter(
-                user=OuterRef("pk"),
-                company=self.request.company,
-                is_active=True,
-            ).values("role")[:1]
+        active_membership = Membership.objects.filter(
+            user=OuterRef("pk"),
+            company=self.request.company,
         )
+        role_within_company = Subquery(active_membership.values("role")[:1])
+        membership_id = Subquery(active_membership.values("id")[:1])
+        membership_active = Subquery(active_membership.values("is_active")[:1])
+        joined_at = Subquery(active_membership.values("created_at")[:1])
+
         return (
             User.objects.filter(
                 memberships__company=self.request.company,
-                memberships__is_active=True,
             )
-            .annotate(role=role_within_company)
-            .order_by("date_joined")
+            .distinct()
+            .annotate(
+                role=role_within_company,
+                membership_id=membership_id,
+                membership_active=membership_active,
+                joined_at=joined_at,
+            )
+            .order_by("-membership_active", "date_joined")
         )

@@ -20,18 +20,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_delete, post_save, pre_save
 from django.dispatch import receiver
 
 from apps.activities.models import ActivityAction, EntityType
 from apps.activities.services import record_activity
-from apps.companies.models import Membership
+from apps.companies.models import InvitationStatus, Membership, TeamInvitation
 from apps.customers.models import Customer, CustomerStatus
-from apps.projects.models import Project
-from apps.tasks.models import Task
+from apps.documents.models import Document, EntityKind
+from apps.projects.models import Project, ProjectMember
+from apps.tasks.models import Task, TaskComment
 
-# Fields whose changes we care about, per model. Also used to compute the
-# ``changed_fields`` metadata list. FK columns use their ``*_id`` attribute.
 _CUSTOMER_FIELDS = (
     "name",
     "company_name",
@@ -62,6 +61,7 @@ _TASK_FIELDS = (
     "due_date",
 )
 _MEMBERSHIP_FIELDS = ("role", "is_active")
+_INVITATION_FIELDS = ("status",)
 
 
 def _snapshot(sender, instance, fields: tuple[str, ...]) -> None:
@@ -79,9 +79,6 @@ def _changed(old: dict[str, Any] | None, instance, fields: tuple[str, ...]) -> l
     return [f for f in fields if old.get(f) != getattr(instance, f)]
 
 
-# --------------------------------------------------------------------------- #
-# Customer
-# --------------------------------------------------------------------------- #
 @receiver(pre_save, sender=Customer, dispatch_uid="activities.customer_pre_save")
 def _customer_pre_save(sender, instance, **kwargs) -> None:
     _snapshot(sender, instance, _CUSTOMER_FIELDS)
@@ -116,7 +113,6 @@ def _customer_post_save(sender, instance, created, **kwargs) -> None:
         )
         return
 
-    # Only field *names* are recorded — values may be PII (email, phone, notes).
     record_activity(
         action=ActivityAction.CUSTOMER_UPDATED,
         entity=instance,
@@ -125,9 +121,6 @@ def _customer_post_save(sender, instance, created, **kwargs) -> None:
     )
 
 
-# --------------------------------------------------------------------------- #
-# Project
-# --------------------------------------------------------------------------- #
 @receiver(pre_save, sender=Project, dispatch_uid="activities.project_pre_save")
 def _project_pre_save(sender, instance, **kwargs) -> None:
     _snapshot(sender, instance, _PROJECT_FIELDS)
@@ -174,9 +167,6 @@ def _project_post_save(sender, instance, created, **kwargs) -> None:
     )
 
 
-# --------------------------------------------------------------------------- #
-# Task
-# --------------------------------------------------------------------------- #
 @receiver(pre_save, sender=Task, dispatch_uid="activities.task_pre_save")
 def _task_pre_save(sender, instance, **kwargs) -> None:
     _snapshot(sender, instance, _TASK_FIELDS)
@@ -203,8 +193,6 @@ def _task_post_save(sender, instance, created, **kwargs) -> None:
     if not changed:
         return
 
-    # Assignment and status change are distinct listed events; emit both when a
-    # single save touches both.
     if "assignee_id" in changed:
         old_assignee = (old or {}).get("assignee_id")
         record_activity(
@@ -230,10 +218,72 @@ def _task_post_save(sender, instance, created, **kwargs) -> None:
             },
         )
 
+    if "priority" in changed:
+        record_activity(
+            action=ActivityAction.TASK_PRIORITY_CHANGED,
+            entity=instance,
+            entity_type=EntityType.TASK,
+            metadata={
+                "title": instance.title,
+                "old_priority": (old or {}).get("priority"),
+                "new_priority": instance.priority,
+            },
+        )
 
-# --------------------------------------------------------------------------- #
-# Membership (team role changes)
-# --------------------------------------------------------------------------- #
+    if "due_date" in changed:
+        record_activity(
+            action=ActivityAction.TASK_DUE_DATE_CHANGED,
+            entity=instance,
+            entity_type=EntityType.TASK,
+            metadata={
+                "title": instance.title,
+                "old_due_date": str((old or {}).get("due_date") or ""),
+                "new_due_date": str(instance.due_date or ""),
+            },
+        )
+
+
+@receiver(post_save, sender=TaskComment, dispatch_uid="activities.task_comment_post_save")
+def _task_comment_post_save(sender, instance, created, **kwargs) -> None:
+    if not created:
+        return
+    record_activity(
+        action=ActivityAction.TASK_COMMENT_ADDED,
+        company=instance.company,
+        entity_type=EntityType.TASK,
+        entity_id=instance.task_id,
+        metadata={"comment_id": str(instance.pk)},
+    )
+
+
+@receiver(post_delete, sender=TaskComment, dispatch_uid="activities.task_comment_post_delete")
+def _task_comment_post_delete(sender, instance, **kwargs) -> None:
+    record_activity(
+        action=ActivityAction.TASK_COMMENT_DELETED,
+        company=instance.company,
+        entity_type=EntityType.TASK,
+        entity_id=instance.task_id,
+        metadata={"comment_id": str(instance.pk)},
+    )
+
+
+@receiver(post_save, sender=Document, dispatch_uid="activities.document_post_save")
+def _document_post_save(sender, instance, created, **kwargs) -> None:
+    if not created or instance.entity_kind != EntityKind.TASK:
+        return
+    record_activity(
+        action=ActivityAction.TASK_ATTACHMENT_ADDED,
+        company=instance.company,
+        entity_type=EntityType.TASK,
+        entity_id=instance.entity_id,
+        metadata={
+            "document_id": str(instance.pk),
+            "original_filename": instance.original_filename,
+            "size": instance.size,
+        },
+    )
+
+
 @receiver(pre_save, sender=Membership, dispatch_uid="activities.membership_pre_save")
 def _membership_pre_save(sender, instance, **kwargs) -> None:
     _snapshot(sender, instance, _MEMBERSHIP_FIELDS)
@@ -241,22 +291,107 @@ def _membership_pre_save(sender, instance, **kwargs) -> None:
 
 @receiver(post_save, sender=Membership, dispatch_uid="activities.membership_post_save")
 def _membership_post_save(sender, instance, created, **kwargs) -> None:
-    # Membership creation is not one of the audited events; only role changes are.
     if created:
         return
 
     old = getattr(instance, "_audit_old", None)
     changed = _changed(old, instance, _MEMBERSHIP_FIELDS)
-    if "role" not in changed:
+
+    if "is_active" in changed:
+        now_active = instance.is_active
+        record_activity(
+            action=(
+                ActivityAction.TEAM_MEMBER_REACTIVATED
+                if now_active
+                else ActivityAction.TEAM_MEMBER_DEACTIVATED
+            ),
+            entity=instance,
+            entity_type=EntityType.MEMBERSHIP,
+            metadata={"member_user_id": str(instance.user_id)},
+        )
+
+    if "role" in changed:
+        record_activity(
+            action=ActivityAction.TEAM_ROLE_CHANGED,
+            entity=instance,
+            entity_type=EntityType.MEMBERSHIP,
+            metadata={
+                "member_user_id": str(instance.user_id),
+                "old_role": (old or {}).get("role"),
+                "new_role": instance.role,
+            },
+        )
+
+
+@receiver(post_delete, sender=Membership, dispatch_uid="activities.membership_post_delete")
+def _membership_post_delete(sender, instance, **kwargs) -> None:
+    record_activity(
+        action=ActivityAction.TEAM_MEMBER_REMOVED,
+        company=instance.company,
+        entity_type=EntityType.MEMBERSHIP,
+        entity_id=instance.pk,
+        metadata={"member_user_id": str(instance.user_id)},
+    )
+
+
+@receiver(pre_save, sender=TeamInvitation, dispatch_uid="activities.invitation_pre_save")
+def _invitation_pre_save(sender, instance, **kwargs) -> None:
+    _snapshot(sender, instance, _INVITATION_FIELDS)
+
+
+@receiver(post_save, sender=TeamInvitation, dispatch_uid="activities.invitation_post_save")
+def _invitation_post_save(sender, instance, created, **kwargs) -> None:
+    if created:
+        record_activity(
+            action=ActivityAction.INVITATION_SENT,
+            entity=instance,
+            entity_type=EntityType.INVITATION,
+            metadata={
+                "invitee_email": instance.email,
+                "role": instance.role,
+            },
+        )
         return
 
+    old = getattr(instance, "_audit_old", None)
+    changed = _changed(old, instance, _INVITATION_FIELDS)
+    if "status" not in changed or instance.status == InvitationStatus.ACCEPTED:
+        return
+
+    if instance.status == InvitationStatus.REVOKED:
+        record_activity(
+            action=ActivityAction.INVITATION_REVOKED,
+            entity=instance,
+            entity_type=EntityType.INVITATION,
+            metadata={"invitee_email": instance.email, "role": instance.role},
+        )
+
+
+@receiver(post_save, sender=ProjectMember, dispatch_uid="activities.project_member_post_save")
+def _project_member_post_save(sender, instance, created, **kwargs) -> None:
+    if not created:
+        return
     record_activity(
-        action=ActivityAction.TEAM_ROLE_CHANGED,
-        entity=instance,
-        entity_type=EntityType.MEMBERSHIP,
+        action=ActivityAction.PROJECT_MEMBER_ADDED,
+        company=instance.company,
+        entity_type=EntityType.PROJECT,
+        entity_id=instance.project_id,
         metadata={
+            "project_name": instance.project.name,
             "member_user_id": str(instance.user_id),
-            "old_role": (old or {}).get("role"),
-            "new_role": instance.role,
+        },
+    )
+
+
+@receiver(post_delete, sender=ProjectMember, dispatch_uid="activities.project_member_post_delete")
+def _project_member_post_delete(sender, instance, **kwargs) -> None:
+    record_activity(
+        action=ActivityAction.PROJECT_MEMBER_REMOVED,
+        company=instance.company,
+        entity_type=EntityType.PROJECT,
+        entity_id=instance.project_id,
+        metadata={
+            "project_name": instance.project.name,
+            "member_user_id": str(instance.user_id),
         },
     )

@@ -1,4 +1,4 @@
-export type EntityKind = "COMPANY" | "PROJECT" | "CUSTOMER"
+export type EntityKind = "COMPANY" | "PROJECT" | "CUSTOMER" | "TASK"
 
 export interface Document {
   id: string

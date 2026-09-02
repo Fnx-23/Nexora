@@ -56,7 +56,6 @@ export function DashboardPage() {
         }
       />
 
-      {/* KPI Cards */}
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {isLoading ? (
           <KpiCardSkeleton count={4} />
@@ -95,7 +94,6 @@ export function DashboardPage() {
         )}
       </div>
 
-      {/* Status distributions + Your access */}
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -123,7 +121,6 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Access panel */}
         <Card>
           <CardHeader>
             <CardTitle>Your Access</CardTitle>
@@ -149,9 +146,7 @@ export function DashboardPage() {
         </Card>
       </div>
 
-      {/* Recent items + Activity feed */}
       <div className="mt-5 grid gap-5 lg:grid-cols-3">
-        {/* Recent Projects */}
         <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle>Recent Projects</CardTitle>
@@ -184,7 +179,6 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Recent Tasks */}
         <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle>Recent Tasks</CardTitle>
@@ -215,7 +209,6 @@ export function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Activity Feed */}
         <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle>Recent Activity</CardTitle>
@@ -257,10 +250,6 @@ export function DashboardPage() {
     </div>
   )
 }
-
-/* -------------------------------------------------------------------------- */
-/* Sub-components                                                             */
-/* -------------------------------------------------------------------------- */
 
 function KpiCard({
   label,
@@ -408,10 +397,6 @@ function RecentSkeleton({ count }: { count: number }) {
     </ul>
   )
 }
-
-/* -------------------------------------------------------------------------- */
-/* Helpers                                                                    */
-/* -------------------------------------------------------------------------- */
 
 const STATUS_COLORS: Record<string, string> = {
   PLANNING: "bg-sky-400",
