@@ -33,14 +33,12 @@ Nexora consolidates these mission-critical operational surfaces into a single, c
 Experience Nexora's human-paced workflow walkthrough, demonstrating multi-tenant organization switching, project management, and automated report generation:
 
 <p align="center">
-  <video src="./Demo//Demo.mp4" controls="controls" muted="muted" width="100%"></video>
+  <video src="./Demo/Demo.mp4" controls muted width="100%"></video>
 </p>
 
 <p align="center">
-  <em>Direct repository video: <a href="./Demo.mp4">Demo.mp4</a> | <a href="https://github.com/Fnx-23/Nexora/raw/main/Demo.mp4">Watch on GitHub Raw</a></em>
+  <em>Direct repository video: <a href="./Demo/Demo.mp4">Demo.mp4</a></em>
 </p>
-
----
 
 ## 3. Core Features
 
