@@ -30,15 +30,9 @@ Nexora consolidates these mission-critical operational surfaces into a single, c
 
 ## 2. Product Demo
 
-Experience Nexora's human-paced workflow walkthrough, demonstrating multi-tenant organization switching, project management, and automated report generation:
+Experience Nexora's human-paced workflow walkthrough, demonstrating multi-tenant organization switching, project management, and automated report generation.
 
-<p align="center">
-  <video src="./Demo/Demo.mp4" controls muted width="100%"></video>
-</p>
-
-<p align="center">
-  <em>Direct repository video: <a href="./Demo/Demo.mp4">Demo.mp4</a></em>
-</p>
+https://github.com/user-attachments/assets/b6b09b53-9f03-4242-ba20-cd2d76d2fa14
 
 ## 3. Core Features
 
